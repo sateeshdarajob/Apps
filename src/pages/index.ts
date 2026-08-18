@@ -1,6 +1,11 @@
-export { ControlTowerPage } from './control-tower/ControlTowerPage';
-export { ProgramsPage } from './programs/ProgramsPage';
-export { RisksPage } from './risks/RisksPage';
+export { OverviewPage } from './overview/OverviewPage';
+export { DeliveryPage } from './delivery/DeliveryPage';
+export { RoadmapPage } from './roadmap/RoadmapPage';
 export { DependenciesPage } from './dependencies/DependenciesPage';
-export { CapacityPage } from './capacity/CapacityPage';
+export { RisksPage } from './risks/RisksPage';
+export { ReleasesPage } from './releases/ReleasesPage';
+export { IncidentsPage } from './incidents/IncidentsPage';
+export { ResourcesPage } from './resources/ResourcesPage';
+export { MetricsPage } from './metrics/MetricsPage';
+export { DecisionsPage } from './decisions/DecisionsPage';
 export { SettingsPage } from './settings/SettingsPage';

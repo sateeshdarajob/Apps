@@ -1,40 +1,45 @@
 import type { NavigationItem } from '@/types';
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
-  {
-    id: 'control-tower',
-    label: 'Control Tower',
-    path: '/',
-    icon: 'dashboard',
-  },
-  {
-    id: 'programs',
-    label: 'Programs',
-    path: '/programs',
-    icon: 'programs',
-  },
-  {
-    id: 'risks',
-    label: 'Risks',
-    path: '/risks',
-    icon: 'risks',
-  },
+  { id: 'overview', label: 'Overview', path: '/', icon: 'overview', section: 'primary' },
+  { id: 'delivery', label: 'Delivery', path: '/delivery', icon: 'delivery', section: 'primary' },
+  { id: 'roadmap', label: 'Roadmap', path: '/roadmap', icon: 'roadmap', section: 'primary' },
   {
     id: 'dependencies',
     label: 'Dependencies',
     path: '/dependencies',
     icon: 'dependencies',
+    section: 'primary',
+  },
+  { id: 'risks', label: 'Risks', path: '/risks', icon: 'risks', section: 'primary' },
+  { id: 'releases', label: 'Releases', path: '/releases', icon: 'releases', section: 'primary' },
+  {
+    id: 'incidents',
+    label: 'Incidents',
+    path: '/incidents',
+    icon: 'incidents',
+    section: 'primary',
   },
   {
-    id: 'capacity',
-    label: 'Capacity',
-    path: '/capacity',
-    icon: 'capacity',
+    id: 'resources',
+    label: 'Resources',
+    path: '/resources',
+    icon: 'resources',
+    section: 'primary',
   },
+  { id: 'metrics', label: 'Metrics', path: '/metrics', icon: 'metrics', section: 'primary' },
   {
-    id: 'settings',
-    label: 'Settings',
-    path: '/settings',
-    icon: 'settings',
+    id: 'decisions',
+    label: 'Decisions',
+    path: '/decisions',
+    icon: 'decisions',
+    section: 'primary',
   },
+  { id: 'settings', label: 'Settings', path: '/settings', icon: 'settings', section: 'secondary' },
 ];
+
+export function resolveNavigationItem(pathname: string): NavigationItem | undefined {
+  return NAVIGATION_ITEMS.find((item) =>
+    item.path === '/' ? pathname === '/' : pathname.startsWith(item.path),
+  );
+}
