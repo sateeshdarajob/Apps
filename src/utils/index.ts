@@ -53,3 +53,13 @@ export {
   buildDeliveryTableRows,
   milestoneCompletionForDelivery,
 } from './delivery';
+export {
+  roadmapDeliveryState,
+  ROADMAP_STATE_COLORS,
+  ROADMAP_STATE_LABELS,
+  computeTimelineRange,
+  barPosition,
+  markerPosition,
+  buildGanttRows,
+} from './roadmap';
+export type { TimelineViewMode, TimelineColumn, GanttRow } from './roadmap';

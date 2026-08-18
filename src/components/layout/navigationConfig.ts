@@ -39,6 +39,16 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
 ];
 
 export function resolveNavigationItem(pathname: string): NavigationItem | undefined {
+  if (pathname.startsWith('/programs/')) {
+    return {
+      id: 'program-detail',
+      label: 'Program Detail',
+      path: pathname,
+      icon: 'roadmap',
+      section: 'primary',
+    };
+  }
+
   return NAVIGATION_ITEMS.find((item) =>
     item.path === '/' ? pathname === '/' : pathname.startsWith(item.path),
   );

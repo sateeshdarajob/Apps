@@ -8,6 +8,7 @@ type AppBreadcrumbsProps = {
 
 export function AppBreadcrumbs({ pathname }: AppBreadcrumbsProps) {
   const current = resolveNavigationItem(pathname);
+  const isProgramDetail = pathname.startsWith('/programs/');
 
   return (
     <Breadcrumbs aria-label="breadcrumb" sx={{ '& .MuiBreadcrumbs-separator': { mx: 0.75 } }}>
@@ -20,6 +21,17 @@ export function AppBreadcrumbs({ pathname }: AppBreadcrumbsProps) {
       >
         Control Tower
       </MuiLink>
+      {isProgramDetail && (
+        <MuiLink
+          component={RouterLink}
+          to="/roadmap"
+          underline="hover"
+          color="text.secondary"
+          variant="caption"
+        >
+          Roadmap
+        </MuiLink>
+      )}
       <Typography variant="caption" color="text.primary" fontWeight={600}>
         {current?.label ?? 'Overview'}
       </Typography>

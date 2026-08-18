@@ -7,6 +7,7 @@ import {
   IncidentsPage,
   MetricsPage,
   OverviewPage,
+  ProgramDetailPage,
   ReleasesPage,
   ResourcesPage,
   RisksPage,
@@ -22,6 +23,7 @@ export function AppRouter() {
           <Route index element={<OverviewPage />} />
           <Route path="delivery" element={<DeliveryPage />} />
           <Route path="roadmap" element={<RoadmapPage />} />
+          <Route path="programs/:programId" element={<ProgramDetailPage />} />
           <Route path="dependencies" element={<DependenciesPage />} />
           <Route path="risks" element={<RisksPage />} />
           <Route path="releases" element={<ReleasesPage />} />
