@@ -10,3 +10,19 @@ export {
 } from './format';
 export { getRagColor } from './rag';
 export { PROFILE_DISPLAY_NAME, PROFILE_AVATAR_INITIALS } from './profile';
+export {
+  matchesProgramFilters,
+  matchesProgramScopedFilters,
+  filterPrograms,
+  filterMilestones,
+  filterDependencies,
+  filterRisks,
+  filterReleases,
+  filterIncidents,
+  filterDecisions,
+  filterRoadmapItems,
+  filterSprints,
+  filterDefects,
+  filterCapacities,
+  filterKpis,
+} from './filters';

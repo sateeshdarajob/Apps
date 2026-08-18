@@ -54,16 +54,24 @@ npm run dev
 src/
   app/           # App root, providers, router, shared FilterProvider
   components/    # Layout shell + reusable UI primitives
-  data/mock/     # Centralized mock domain + filter option data
+  data/mock/     # Centralized mock domain datasets
   hooks/         # Global filters + TanStack Query hooks
   pages/         # Route-level screens (placeholders for now)
   services/      # Async data access (mock today, API-ready later)
   theme/         # MUI theme
-  types/         # Shared TypeScript domain types
-  utils/         # Formatting and RAG helpers
+  types/         # Centralized domain model (no duplicated interfaces)
+  utils/         # Formatting, RAG helpers, shared filter utilities
 ```
 
 Global filters and refresh controls live in `FilterProvider` and are consumed via `useGlobalFilters()` so every page shares the same application state.
+
+### Domain model
+
+Strongly typed entities in `src/types/`:
+
+Program, Milestone, Dependency, Risk, Release, Incident, Team/Capacity, Decision, KPI, RoadmapItem, Sprint, Defect, BusinessOutcome
+
+Mock datasets live under `src/data/mock/`. Shared filter helpers in `src/utils/filters.ts` apply the global dashboard filters consistently across all datasets.
 
 ## Application shell
 
