@@ -2,6 +2,9 @@
 
 Enterprise Technical Program Management dashboard for TPMs, Engineering Managers, Product Managers, and executive stakeholders.
 
+<img width="1894" height="864" alt="image" src="https://github.com/user-attachments/assets/695e6248-8a36-4c1a-bb1d-c7b89b36f6ac" />
+
+
 ## Stack
 
 - React 19 + TypeScript
