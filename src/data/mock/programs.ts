@@ -1,0 +1,176 @@
+import type { OrgUnit, Person, Program, Risk, Dependency, KpiMetric } from '@/types';
+
+export const orgUnits: OrgUnit[] = [
+  { id: 'org-platform', name: 'Platform Engineering' },
+  { id: 'org-product', name: 'Product Delivery' },
+  { id: 'org-data', name: 'Data & Analytics' },
+  { id: 'org-security', name: 'Security & Compliance' },
+];
+
+export const people: Person[] = [
+  {
+    id: 'p-001',
+    name: 'Alex Rivera',
+    email: 'alex.rivera@example.com',
+    role: 'Technical Program Manager',
+  },
+  {
+    id: 'p-002',
+    name: 'Jordan Lee',
+    email: 'jordan.lee@example.com',
+    role: 'Engineering Manager',
+  },
+  {
+    id: 'p-003',
+    name: 'Sam Okonkwo',
+    email: 'sam.okonkwo@example.com',
+    role: 'Product Manager',
+  },
+  {
+    id: 'p-004',
+    name: 'Morgan Chen',
+    email: 'morgan.chen@example.com',
+    role: 'Director of Engineering',
+  },
+];
+
+export const programs: Program[] = [
+  {
+    id: 'prg-001',
+    name: 'Customer Identity Modernization',
+    code: 'CIM',
+    description: 'Migrate authentication and identity lifecycle to the new platform.',
+    phase: 'execution',
+    health: 'amber',
+    ownerId: 'p-001',
+    orgUnitId: 'org-platform',
+    startDate: '2025-10-01',
+    targetEndDate: '2026-06-30',
+    percentComplete: 62,
+    ragComment: 'Vendor SLA risk on MFA rollout; mitigation in progress.',
+  },
+  {
+    id: 'prg-002',
+    name: 'Checkout Reliability Program',
+    code: 'CRP',
+    description: 'Reduce checkout failure rate and improve payment resiliency.',
+    phase: 'execution',
+    health: 'green',
+    ownerId: 'p-003',
+    orgUnitId: 'org-product',
+    startDate: '2025-11-15',
+    targetEndDate: '2026-04-30',
+    percentComplete: 71,
+  },
+  {
+    id: 'prg-003',
+    name: 'Data Platform Consolidation',
+    code: 'DPC',
+    description: 'Consolidate warehouse pipelines and deprecate legacy ETL.',
+    phase: 'planning',
+    health: 'red',
+    ownerId: 'p-002',
+    orgUnitId: 'org-data',
+    startDate: '2026-01-06',
+    targetEndDate: '2026-09-30',
+    percentComplete: 18,
+    ragComment: 'Critical dependency on warehouse capacity not funded.',
+  },
+  {
+    id: 'prg-004',
+    name: 'Zero Trust Access Rollout',
+    code: 'ZTA',
+    description: 'Enterprise zero-trust network access for production systems.',
+    phase: 'stabilization',
+    health: 'green',
+    ownerId: 'p-004',
+    orgUnitId: 'org-security',
+    startDate: '2025-06-01',
+    targetEndDate: '2026-03-31',
+    percentComplete: 88,
+  },
+];
+
+export const risks: Risk[] = [
+  {
+    id: 'risk-001',
+    programId: 'prg-001',
+    title: 'MFA vendor SLA breach',
+    severity: 'high',
+    status: 'mitigating',
+    ownerId: 'p-001',
+    dueDate: '2026-04-15',
+  },
+  {
+    id: 'risk-002',
+    programId: 'prg-003',
+    title: 'Warehouse capacity unfunded',
+    severity: 'critical',
+    status: 'open',
+    ownerId: 'p-002',
+    dueDate: '2026-03-31',
+  },
+  {
+    id: 'risk-003',
+    programId: 'prg-002',
+    title: 'Payment provider rate-limit change',
+    severity: 'medium',
+    status: 'accepted',
+    ownerId: 'p-003',
+    dueDate: '2026-05-01',
+  },
+];
+
+export const dependencies: Dependency[] = [
+  {
+    id: 'dep-001',
+    programId: 'prg-001',
+    dependsOnProgramId: 'prg-004',
+    description: 'Zero-trust policies required before identity cutover.',
+    status: 'amber',
+    targetDate: '2026-05-01',
+  },
+  {
+    id: 'dep-002',
+    programId: 'prg-003',
+    dependsOnProgramId: 'prg-001',
+    description: 'Identity service accounts for pipeline authentication.',
+    status: 'red',
+    targetDate: '2026-04-01',
+  },
+];
+
+export const portfolioKpis: KpiMetric[] = [
+  {
+    id: 'kpi-programs',
+    label: 'Active Programs',
+    value: 4,
+    trend: 'flat',
+    helperText: 'Across all org units',
+  },
+  {
+    id: 'kpi-on-track',
+    label: 'On Track',
+    value: '50%',
+    delta: -8,
+    trend: 'down',
+    status: 'amber',
+    helperText: 'Programs with green RAG',
+  },
+  {
+    id: 'kpi-open-risks',
+    label: 'Open Risks',
+    value: 2,
+    delta: 1,
+    trend: 'up',
+    status: 'red',
+    helperText: 'High or critical severity',
+  },
+  {
+    id: 'kpi-blocked-deps',
+    label: 'Blocked Dependencies',
+    value: 1,
+    status: 'amber',
+    helperText: 'Cross-program blockers',
+  },
+];
