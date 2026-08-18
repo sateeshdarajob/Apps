@@ -163,3 +163,130 @@ export function MilestoneStackedBar({ data }: MilestoneStackedBarProps) {
     </ResponsiveContainer>
   );
 }
+
+type DualLineChartProps = {
+  data: { label: string; planned: number; actual: number }[];
+};
+
+export function DualLineChart({ data }: DualLineChartProps) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
+        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="planned"
+          name="Planned"
+          stroke="#8A9BA8"
+          strokeWidth={2}
+          strokeDasharray="5 4"
+          dot={{ r: 3 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="actual"
+          name="Actual"
+          stroke="#0B3A53"
+          strokeWidth={2}
+          dot={{ r: 3 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+type ScopeChangeBarProps = {
+  data: { label: string; original: number; added: number; removed: number }[];
+};
+
+export function ScopeChangeBar({ data }: ScopeChangeBarProps) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
+        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="original" name="Original Scope" fill="#0B3A53" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="added" name="Added Scope" fill="#C47A11" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="removed" name="Removed Scope" fill="#8A9BA8" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+type ClickableLineChartProps = {
+  data: { label: string; value: number }[];
+  color?: string;
+  onPointClick?: (index: number) => void;
+};
+
+export function ClickableLineChart({
+  data,
+  color = '#0B3A53',
+  onPointClick,
+}: ClickableLineChartProps) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
+        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} domain={[0, 100]} />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke={color}
+          strokeWidth={2}
+          dot={{ r: 4, cursor: onPointClick ? 'pointer' : 'default' }}
+          activeDot={{
+            r: 6,
+            cursor: onPointClick ? 'pointer' : 'default',
+            onClick: (_, payload) => {
+              const index = (payload as { index?: number }).index;
+              if (typeof index === 'number' && onPointClick) onPointClick(index);
+            },
+          }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+type AgingBarChartProps = {
+  data: { label: string; value: number; bucket?: string }[];
+  onBarClick?: (bucket: string) => void;
+};
+
+export function AgingBarChart({ data, onBarClick }: AgingBarChartProps) {
+  const colors = ['#2E7D4F', '#1565A0', '#C47A11', '#C62828'];
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
+        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
+        <Tooltip />
+        <Bar
+          dataKey="value"
+          radius={[4, 4, 0, 0]}
+          cursor={onBarClick ? 'pointer' : 'default'}
+          onClick={(_, index) => {
+            const entry = data[index];
+            if (entry && onBarClick) onBarClick(entry.bucket ?? entry.label);
+          }}
+        >
+          {data.map((entry, index) => (
+            <Cell key={entry.label} fill={colors[index % colors.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}

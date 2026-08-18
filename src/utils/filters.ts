@@ -2,6 +2,7 @@ import type {
   Capacity,
   Decision,
   Defect,
+  DeliveryPeriodMetric,
   Dependency,
   GlobalFilters,
   Incident,
@@ -12,6 +13,7 @@ import type {
   Risk,
   RoadmapItem,
   Sprint,
+  WorkItemAgingBucket,
 } from '@/types';
 import { programs } from '@/data/mock';
 
@@ -225,4 +227,20 @@ export function filterKpis(items: Kpi[], filters?: Partial<GlobalFilters>): Kpi[
     }
     return true;
   });
+}
+
+export function filterDeliveryPeriodMetrics(
+  items: DeliveryPeriodMetric[],
+  filters?: Partial<GlobalFilters>,
+): DeliveryPeriodMetric[] {
+  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+}
+
+export function filterWorkItemAging(
+  items: WorkItemAgingBucket[],
+  filters?: Partial<GlobalFilters>,
+): WorkItemAgingBucket[] {
+  return items.filter(
+    (item) => matchesProgramScopedFilters(item, filters) && matchesTeamFilters(item, filters),
+  );
 }

@@ -29,4 +29,5 @@ export { sprints } from './sprints';
 export { defects } from './defects';
 export { capacities } from './capacity';
 export { programs } from './programs';
+export { deliveryPeriodMetrics, workItemAging } from './delivery';
 export { deliveryVelocityTrend, ragDistribution, capacityByOrg } from './charts';

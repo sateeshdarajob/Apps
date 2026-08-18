@@ -41,7 +41,7 @@ export type { Decision, DecisionStatus } from './decision';
 export type { BusinessOutcome, OutcomeStatus } from './businessOutcome';
 export type { Kpi, KpiMetric, KpiTrend, KpiCategory } from './kpi';
 export type { RoadmapItem, RoadmapItemType } from './roadmap';
-export type { Sprint } from './sprint';
+export type { Sprint, DeliveryPeriodMetric, WorkItemAgingBucket } from './sprint';
 export type { Defect, DefectSeverity, DefectStatus } from './defect';
 export type { Capacity } from './capacity';
 export type { Program } from './program';

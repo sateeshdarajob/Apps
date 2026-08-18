@@ -23,12 +23,15 @@ import {
   sprints,
   defects,
   capacities,
+  deliveryPeriodMetrics,
+  workItemAging,
 } from '@/data/mock';
 import type { GlobalFilters } from '@/types';
 import {
   filterCapacities,
   filterDecisions,
   filterDefects,
+  filterDeliveryPeriodMetrics,
   filterDependencies,
   filterIncidents,
   filterKpis,
@@ -38,6 +41,7 @@ import {
   filterRisks,
   filterRoadmapItems,
   filterSprints,
+  filterWorkItemAging,
 } from '@/utils/filters';
 
 const MOCK_LATENCY_MS = 250;
@@ -89,6 +93,13 @@ export const roadmapService = {
 
 export const sprintService = {
   getSprints: (filters?: Partial<GlobalFilters>) => delay(filterSprints(sprints, filters)),
+};
+
+export const deliveryService = {
+  getPeriodMetrics: (filters?: Partial<GlobalFilters>) =>
+    delay(filterDeliveryPeriodMetrics(deliveryPeriodMetrics, filters)),
+  getWorkItemAging: (filters?: Partial<GlobalFilters>) =>
+    delay(filterWorkItemAging(workItemAging, filters)),
 };
 
 export const defectService = {
