@@ -22,7 +22,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import { useLocation } from 'react-router-dom';
 import { useCurrentUser, useNotifications } from '@/hooks';
-import { formatRelativeTime } from '@/utils';
+import { PROFILE_AVATAR_INITIALS, PROFILE_DISPLAY_NAME, formatRelativeTime } from '@/utils';
 import { APP_HEADER_HEIGHT } from './constants';
 import { AppBreadcrumbs } from './AppBreadcrumbs';
 
@@ -39,6 +39,11 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
   const { data: user } = useCurrentUser();
   const { data: notifications = [] } = useNotifications();
   const unreadCount = notifications.filter((item) => !item.read).length;
+
+  const displayName = PROFILE_DISPLAY_NAME;
+  const displayInitials = user?.avatarInitials || PROFILE_AVATAR_INITIALS;
+  const displayRole = user?.role ?? 'Technical Program Manager';
+  const displayEmail = user?.email ?? 'sateesh.kumar.dara@example.com';
 
   const [profileAnchor, setProfileAnchor] = useState<null | HTMLElement>(null);
   const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
@@ -92,7 +97,7 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
 
           <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 1.5 }} />
 
-          <Tooltip title={user?.name ?? 'Profile'}>
+          <Tooltip title={displayName}>
             <IconButton
               onClick={(event) => setProfileAnchor(event.currentTarget)}
               aria-label="User profile"
@@ -107,15 +112,15 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
                   fontWeight: 600,
                 }}
               >
-                {user?.avatarInitials ?? 'U'}
+                {displayInitials}
               </Avatar>
               {!isMobile && (
                 <Box sx={{ textAlign: 'left', display: { xs: 'none', lg: 'block' } }}>
                   <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
-                    {user?.name ?? 'Loading…'}
+                    {displayName}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" lineHeight={1.2}>
-                    {user?.role ?? ''}
+                    {displayRole}
                   </Typography>
                 </Box>
               )}
@@ -169,9 +174,9 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Box sx={{ px: 2, py: 1.25, minWidth: 220 }}>
-          <Typography variant="subtitle2">{user?.name}</Typography>
+          <Typography variant="subtitle2">{displayName}</Typography>
           <Typography variant="caption" color="text.secondary">
-            {user?.email}
+            {displayEmail}
           </Typography>
         </Box>
         <Divider />

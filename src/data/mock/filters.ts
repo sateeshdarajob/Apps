@@ -1,4 +1,5 @@
 import type { AppNotification, CurrentUser, Portfolio, Product, Team, FilterOption } from '@/types';
+import { PROFILE_AVATAR_INITIALS, PROFILE_DISPLAY_NAME } from '@/utils/profile';
 
 export const portfolios: Portfolio[] = [
   { id: 'pf-growth', name: 'Growth Portfolio' },
@@ -28,12 +29,13 @@ export const quarters: FilterOption[] = [
   { id: '2025-Q4', label: '2025 Q4' },
 ];
 
+/** Display profile for the signed-in Control Tower user — keep this name stable. */
 export const currentUser: CurrentUser = {
   id: 'user-001',
-  name: 'Alex Rivera',
-  email: 'alex.rivera@example.com',
+  name: PROFILE_DISPLAY_NAME,
+  email: 'sateesh.kumar.dara@example.com',
   role: 'Technical Program Manager',
-  avatarInitials: 'AR',
+  avatarInitials: PROFILE_AVATAR_INITIALS,
 };
 
 export const notifications: AppNotification[] = [

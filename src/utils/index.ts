@@ -9,3 +9,4 @@ export {
   RAG_FILTER_OPTIONS,
 } from './format';
 export { getRagColor } from './rag';
+export { PROFILE_DISPLAY_NAME, PROFILE_AVATAR_INITIALS } from './profile';
