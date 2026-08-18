@@ -1,7 +1,10 @@
 import type { Priority, RagStatus, WorkflowStatus } from './common';
 import type { Person } from './org';
 
-export type RoadmapItemType = 'epic' | 'initiative' | 'feature' | 'enabler' | 'milestone';
+export type RoadmapItemType =
+  'epic' | 'initiative' | 'feature' | 'enabler' | 'milestone' | 'program';
+
+export type RoadmapDeliveryState = 'completed' | 'inProgress' | 'atRisk' | 'delayed';
 
 export type RoadmapItem = {
   id: string;
@@ -9,6 +12,8 @@ export type RoadmapItem = {
   title: string;
   description: string;
   type: RoadmapItemType;
+  /** Executive workstream label shown on the Gantt (e.g. Platform, Experience). */
+  workstream: string;
   quarter: string;
   startDate: string;
   endDate: string;
@@ -21,4 +26,5 @@ export type RoadmapItem = {
   percentComplete: number;
   parentId?: string;
   dependsOn: string[];
+  milestoneIds?: string[];
 };

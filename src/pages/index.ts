@@ -9,3 +9,4 @@ export { ResourcesPage } from './resources/ResourcesPage';
 export { MetricsPage } from './metrics/MetricsPage';
 export { DecisionsPage } from './decisions/DecisionsPage';
 export { SettingsPage } from './settings/SettingsPage';
+export { ProgramDetailPage } from './programs/ProgramDetailPage';
