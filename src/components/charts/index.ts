@@ -4,4 +4,8 @@ export {
   SimpleBarChart,
   RagDonutChart,
   MilestoneStackedBar,
+  DualLineChart,
+  ScopeChangeBar,
+  ClickableLineChart,
+  AgingBarChart,
 } from './ChartPrimitives';

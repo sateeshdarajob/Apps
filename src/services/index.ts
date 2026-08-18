@@ -8,6 +8,7 @@ export {
   decisionService,
   roadmapService,
   sprintService,
+  deliveryService,
   defectService,
   capacityService,
   businessOutcomeService,

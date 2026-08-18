@@ -25,6 +25,8 @@ export {
   filterDefects,
   filterCapacities,
   filterKpis,
+  filterDeliveryPeriodMetrics,
+  filterWorkItemAging,
 } from './filters';
 export {
   daysRemaining,
@@ -40,3 +42,14 @@ export {
   milestoneStatusSeries,
 } from './overview';
 export type { ExecutiveKpi } from './overview';
+export {
+  sprintPredictability,
+  buildDeliveryKpis,
+  aggregatePlannedVsActual,
+  aggregateScopeChange,
+  aggregateOnTimeTrend,
+  aggregateWorkItemAging,
+  sprintPredictabilityTrend,
+  buildDeliveryTableRows,
+  milestoneCompletionForDelivery,
+} from './delivery';
