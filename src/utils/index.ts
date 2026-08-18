@@ -26,3 +26,17 @@ export {
   filterCapacities,
   filterKpis,
 } from './filters';
+export {
+  daysRemaining,
+  scheduleVarianceDays,
+  riskScore,
+  isCriticalBlocker,
+  isHighCriticalRisk,
+  isPendingDecision,
+  isOpenPriorityIncident,
+  isUpcomingRelease,
+  buildExecutiveKpis,
+  ragDistribution,
+  milestoneStatusSeries,
+} from './overview';
+export type { ExecutiveKpi } from './overview';

@@ -21,6 +21,8 @@ export type Kpi = {
   teamId?: string;
   quarter?: string;
   asOfDate: string;
+  /** Optional drill-down target (`#section-id` or route path). */
+  href?: string;
 };
 
 /** @deprecated Prefer `Kpi`. Kept as a type alias so existing UI imports remain valid. */

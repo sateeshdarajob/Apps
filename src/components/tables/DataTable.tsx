@@ -1,4 +1,6 @@
+import { useMemo, useState } from 'react';
 import {
+  Box,
   Paper,
   Table,
   TableBody,
@@ -6,66 +8,162 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
+  TextField,
   Typography,
 } from '@mui/material';
 import type { TableColumn } from '@/types';
+
+type SortDirection = 'asc' | 'desc';
 
 type DataTableProps<T extends { id: string }> = {
   columns: TableColumn<T>[];
   rows: T[];
   emptyMessage?: string;
   dense?: boolean;
+  sortable?: boolean;
+  filterable?: boolean;
+  filterPlaceholder?: string;
+  getSortValue?: (row: T, columnId: string) => string | number | boolean | null | undefined;
+  getFilterText?: (row: T) => string;
 };
+
+function defaultSortValue<T extends { id: string }>(
+  row: T,
+  columnId: string,
+): string | number | boolean | null | undefined {
+  return (row as unknown as Record<string, unknown>)[columnId] as
+    string | number | boolean | null | undefined;
+}
+
+function compareValues(
+  a: string | number | boolean | null | undefined,
+  b: string | number | boolean | null | undefined,
+): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return -1;
+  if (b == null) return 1;
+  if (typeof a === 'number' && typeof b === 'number') return a - b;
+  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+}
 
 export function DataTable<T extends { id: string }>({
   columns,
   rows,
   emptyMessage = 'No data available',
   dense = true,
+  sortable = false,
+  filterable = false,
+  filterPlaceholder = 'Filter rows…',
+  getSortValue = defaultSortValue,
+  getFilterText,
 }: DataTableProps<T>) {
-  return (
-    <TableContainer component={Paper} variant="outlined">
-      <Table size={dense ? 'small' : 'medium'}>
-        <TableHead>
-          <TableRow>
-            {columns.map((column) => (
-              <TableCell
-                key={String(column.id)}
-                align={column.align ?? 'left'}
-                sx={{ width: column.width }}
-              >
-                {column.label}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length}>
-                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                  {emptyMessage}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ) : (
-            rows.map((row) => (
-              <TableRow key={row.id} hover>
-                {columns.map((column) => {
-                  const key = String(column.id);
-                  const rawValue = (row as unknown as Record<string, unknown>)[key];
+  const [orderBy, setOrderBy] = useState<string | null>(null);
+  const [order, setOrder] = useState<SortDirection>('asc');
+  const [query, setQuery] = useState('');
 
-                  return (
-                    <TableCell key={key} align={column.align ?? 'left'}>
-                      {column.render ? column.render(row) : String(rawValue ?? '')}
-                    </TableCell>
-                  );
-                })}
+  const filteredRows = useMemo(() => {
+    if (!filterable || !query.trim()) return rows;
+    const needle = query.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (getFilterText) return getFilterText(row).toLowerCase().includes(needle);
+      return columns.some((column) => {
+        const value = getSortValue(row, String(column.id));
+        return String(value ?? '')
+          .toLowerCase()
+          .includes(needle);
+      });
+    });
+  }, [columns, filterable, getFilterText, getSortValue, query, rows]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortable || !orderBy) return filteredRows;
+    const next = [...filteredRows];
+    next.sort((left, right) => {
+      const result = compareValues(getSortValue(left, orderBy), getSortValue(right, orderBy));
+      return order === 'asc' ? result : -result;
+    });
+    return next;
+  }, [filteredRows, getSortValue, order, orderBy, sortable]);
+
+  const handleSort = (columnId: string) => {
+    if (!sortable) return;
+    if (orderBy === columnId) {
+      setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setOrderBy(columnId);
+    setOrder('asc');
+  };
+
+  return (
+    <Box>
+      {filterable && (
+        <TextField
+          size="small"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={filterPlaceholder}
+          sx={{ mb: 1.5, maxWidth: 320 }}
+        />
+      )}
+      <TableContainer component={Paper} variant="outlined">
+        <Table size={dense ? 'small' : 'medium'}>
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => {
+                const columnId = String(column.id);
+                return (
+                  <TableCell
+                    key={columnId}
+                    align={column.align ?? 'left'}
+                    sx={{ width: column.width }}
+                    sortDirection={orderBy === columnId ? order : false}
+                  >
+                    {sortable ? (
+                      <TableSortLabel
+                        active={orderBy === columnId}
+                        direction={orderBy === columnId ? order : 'asc'}
+                        onClick={() => handleSort(columnId)}
+                      >
+                        {column.label}
+                      </TableSortLabel>
+                    ) : (
+                      column.label
+                    )}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedRows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length}>
+                  <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                    {emptyMessage}
+                  </Typography>
+                </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            ) : (
+              sortedRows.map((row) => (
+                <TableRow key={row.id} hover>
+                  {columns.map((column) => {
+                    const key = String(column.id);
+                    const rawValue = (row as unknown as Record<string, unknown>)[key];
+
+                    return (
+                      <TableCell key={key} align={column.align ?? 'left'}>
+                        {column.render ? column.render(row) : String(rawValue ?? '')}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
