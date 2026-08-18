@@ -13,11 +13,29 @@ export type OrgUnit = {
   name: string;
 };
 
+export type Portfolio = {
+  id: string;
+  name: string;
+};
+
+export type Team = {
+  id: string;
+  name: string;
+  orgUnitId: string;
+};
+
+export type Product = {
+  id: string;
+  name: string;
+  portfolioId: string;
+};
+
 export type Person = {
   id: string;
   name: string;
   email: string;
   role: string;
+  avatarInitials?: string;
 };
 
 export type Program = {
@@ -29,6 +47,9 @@ export type Program = {
   health: ProgramHealth;
   ownerId: string;
   orgUnitId: string;
+  portfolioId: string;
+  productId: string;
+  teamId: string;
   startDate: string;
   targetEndDate: string;
   percentComplete: number;
@@ -79,10 +100,27 @@ export type NamedSeries = {
   data: ChartSeriesPoint[];
 };
 
+export type DateRangeValue = '30d' | '90d' | '6m' | '12m' | 'ytd';
+
+export type AutoRefreshInterval = 'manual' | '5m' | '15m' | '30m' | '1h';
+
+/**
+ * Shared global filter state consumed by every dashboard route.
+ * Persist shape here so pages never redefine filter fields locally.
+ */
 export type GlobalFilters = {
-  orgUnitId: string | 'all';
+  portfolioId: string | 'all';
   programId: string | 'all';
-  dateRange: '30d' | '90d' | '6m' | '12m' | 'ytd';
+  quarter: string | 'all';
+  teamId: string | 'all';
+  productId: string | 'all';
+  ragStatus: RagStatus | 'all';
+  dateRange: DateRangeValue;
+};
+
+export type FilterOption = {
+  id: string;
+  label: string;
 };
 
 export type NavigationItem = {
@@ -90,7 +128,24 @@ export type NavigationItem = {
   label: string;
   path: string;
   icon: string;
+  section?: 'primary' | 'secondary';
   children?: NavigationItem[];
+};
+
+export type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarInitials: string;
+};
+
+export type AppNotification = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  read: boolean;
 };
 
 export type TableColumn<T> = {

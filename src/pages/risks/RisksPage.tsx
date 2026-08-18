@@ -1,8 +1,8 @@
-import { PlaceholderPanel } from '@/components/common';
+import { RoutePlaceholderPage } from '../shared/RoutePlaceholderPage';
 
 export function RisksPage() {
   return (
-    <PlaceholderPanel
+    <RoutePlaceholderPage
       title="Risks"
       description="Risk register, severity heatmaps, and mitigation tracking will be added in a later increment."
     />

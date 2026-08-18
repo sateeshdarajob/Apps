@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   Drawer,
   IconButton,
   List,
@@ -8,9 +9,12 @@ import {
   ListItemText,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink, useLocation } from 'react-router-dom';
 import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from './constants';
 import { NAVIGATION_ITEMS } from './navigationConfig';
@@ -18,27 +22,164 @@ import { getNavIcon } from './navIcons';
 
 type SideNavProps = {
   collapsed: boolean;
-  onToggle: () => void;
+  mobileOpen: boolean;
+  onToggleCollapse: () => void;
+  onMobileClose: () => void;
 };
 
-export function SideNav({ collapsed, onToggle }: SideNavProps) {
+export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose }: SideNavProps) {
   const location = useLocation();
-  const width = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const desktopWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
+  const showLabels = isMobile || !collapsed;
+
+  const primaryItems = NAVIGATION_ITEMS.filter((item) => item.section !== 'secondary');
+  const secondaryItems = NAVIGATION_ITEMS.filter((item) => item.section === 'secondary');
+
+  const renderItems = (items: typeof NAVIGATION_ITEMS) =>
+    items.map((item) => {
+      const selected =
+        item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
+
+      const button = (
+        <ListItemButton
+          key={item.id}
+          component={NavLink}
+          to={item.path}
+          selected={selected}
+          onClick={isMobile ? onMobileClose : undefined}
+          sx={{
+            mb: 0.5,
+            borderRadius: 1.5,
+            justifyContent: showLabels ? 'flex-start' : 'center',
+            px: showLabels ? 1.5 : 1,
+            color: 'inherit',
+            '&.Mui-selected': {
+              bgcolor: 'rgba(255,255,255,0.16)',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
+            },
+            '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: showLabels ? 36 : 0,
+              color: 'inherit',
+              justifyContent: 'center',
+            }}
+          >
+            {getNavIcon(item.icon)}
+          </ListItemIcon>
+          {showLabels && (
+            <ListItemText
+              primary={item.label}
+              primaryTypographyProps={{ variant: 'body2', fontWeight: selected ? 600 : 500 }}
+            />
+          )}
+        </ListItemButton>
+      );
+
+      return !showLabels ? (
+        <Tooltip key={item.id} title={item.label} placement="right">
+          {button}
+        </Tooltip>
+      ) : (
+        button
+      );
+    });
+
+  const drawerContent = (
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: showLabels ? 'space-between' : 'center',
+          px: showLabels ? 2 : 1,
+          py: 1.75,
+          minHeight: 64,
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
+        }}
+      >
+        {showLabels && (
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="caption"
+              sx={{ opacity: 0.7, letterSpacing: 0.8, textTransform: 'uppercase' }}
+            >
+              Engineering
+            </Typography>
+            <Typography variant="h6" sx={{ lineHeight: 1.15, color: 'inherit', fontWeight: 600 }}>
+              TPM Control Tower
+            </Typography>
+          </Box>
+        )}
+        {!isMobile && (
+          <IconButton
+            onClick={onToggleCollapse}
+            size="small"
+            sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.08)', flexShrink: 0 }}
+            aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+          >
+            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
+        )}
+        {isMobile && (
+          <IconButton
+            onClick={onMobileClose}
+            size="small"
+            sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.08)' }}
+            aria-label="Close navigation"
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
+        <List sx={{ px: 1, py: 1.5, flexGrow: 1 }}>{renderItems(primaryItems)}</List>
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.12)', mx: 1.5 }} />
+        <List sx={{ px: 1, py: 1.5 }}>{renderItems(secondaryItems)}</List>
+      </Box>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            borderRight: 'none',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    );
+  }
 
   return (
     <Drawer
       variant="permanent"
       sx={{
-        width,
+        width: desktopWidth,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width,
+          width: desktopWidth,
           boxSizing: 'border-box',
-          transition: (theme) =>
-            theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
           overflowX: 'hidden',
           bgcolor: 'primary.main',
           color: 'primary.contrastText',
@@ -46,88 +187,7 @@ export function SideNav({ collapsed, onToggle }: SideNavProps) {
         },
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          px: collapsed ? 1 : 2,
-          py: 1.75,
-          minHeight: 64,
-          borderBottom: '1px solid rgba(255,255,255,0.12)',
-        }}
-      >
-        {!collapsed && (
-          <Box>
-            <Typography variant="subtitle2" sx={{ opacity: 0.7, letterSpacing: 0.6 }}>
-              TPM
-            </Typography>
-            <Typography variant="h6" sx={{ lineHeight: 1.2, color: 'inherit' }}>
-              Control Tower
-            </Typography>
-          </Box>
-        )}
-        <IconButton
-          onClick={onToggle}
-          size="small"
-          sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.08)' }}
-          aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-        >
-          {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </IconButton>
-      </Box>
-
-      <List sx={{ px: 1, py: 1.5 }}>
-        {NAVIGATION_ITEMS.map((item) => {
-          const selected =
-            item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
-
-          const button = (
-            <ListItemButton
-              key={item.id}
-              component={NavLink}
-              to={item.path}
-              selected={selected}
-              sx={{
-                mb: 0.5,
-                borderRadius: 1.5,
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                px: collapsed ? 1 : 1.5,
-                color: 'inherit',
-                '&.Mui-selected': {
-                  bgcolor: 'rgba(255,255,255,0.16)',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
-                },
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: collapsed ? 0 : 36,
-                  color: 'inherit',
-                  justifyContent: 'center',
-                }}
-              >
-                {getNavIcon(item.icon)}
-              </ListItemIcon>
-              {!collapsed && (
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: selected ? 600 : 500 }}
-                />
-              )}
-            </ListItemButton>
-          );
-
-          return collapsed ? (
-            <Tooltip key={item.id} title={item.label} placement="right">
-              {button}
-            </Tooltip>
-          ) : (
-            button
-          );
-        })}
-      </List>
+      {drawerContent}
     </Drawer>
   );
 }

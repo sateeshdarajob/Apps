@@ -1,4 +1,9 @@
-export { useGlobalFilters, FilterContext, DEFAULT_FILTERS } from './useGlobalFilters';
+export {
+  useGlobalFilters,
+  FilterContext,
+  DEFAULT_FILTERS,
+  AUTO_REFRESH_OPTIONS,
+} from './useGlobalFilters';
 export type { FilterContextValue } from './useGlobalFilters';
 export {
   usePrograms,
@@ -6,4 +11,7 @@ export {
   usePortfolioKpis,
   useOrgUnits,
   useDeliveryVelocity,
+  useFilterOptions,
+  useCurrentUser,
+  useNotifications,
 } from './useProgramQueries';
