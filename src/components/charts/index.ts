@@ -1,1 +1,7 @@
-export { ChartCard, SimpleLineChart, SimpleBarChart } from './ChartPrimitives';
+export {
+  ChartCard,
+  SimpleLineChart,
+  SimpleBarChart,
+  RagDonutChart,
+  MilestoneStackedBar,
+} from './ChartPrimitives';
