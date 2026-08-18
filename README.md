@@ -2,8 +2,6 @@
 
 Enterprise Technical Program Management dashboard for TPMs, Engineering Managers, Product Managers, and executive stakeholders.
 
-## Latest UI
-
 ![TPM Control Tower — latest UI](docs/screenshots/latest-ui.png)
 
 > **Check-in convention:** Every GitHub commit that changes the UI must refresh `docs/screenshots/latest-ui.png` and keep this README image current.
