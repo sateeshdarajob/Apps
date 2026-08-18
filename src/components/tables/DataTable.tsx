@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import type { TableColumn } from '@/types';
 
 type SortDirection = 'asc' | 'desc';
@@ -26,6 +27,8 @@ type DataTableProps<T extends { id: string }> = {
   filterPlaceholder?: string;
   getSortValue?: (row: T, columnId: string) => string | number | boolean | null | undefined;
   getFilterText?: (row: T) => string;
+  onRowClick?: (row: T) => void;
+  getRowSx?: (row: T) => SxProps<Theme>;
 };
 
 function defaultSortValue<T extends { id: string }>(
@@ -57,6 +60,8 @@ export function DataTable<T extends { id: string }>({
   filterPlaceholder = 'Filter rows…',
   getSortValue = defaultSortValue,
   getFilterText,
+  onRowClick,
+  getRowSx,
 }: DataTableProps<T>) {
   const [orderBy, setOrderBy] = useState<string | null>(null);
   const [order, setOrder] = useState<SortDirection>('asc');
@@ -147,7 +152,15 @@ export function DataTable<T extends { id: string }>({
               </TableRow>
             ) : (
               sortedRows.map((row) => (
-                <TableRow key={row.id} hover>
+                <TableRow
+                  key={row.id}
+                  hover
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  sx={{
+                    cursor: onRowClick ? 'pointer' : 'default',
+                    ...(getRowSx ? getRowSx(row) : {}),
+                  }}
+                >
                   {columns.map((column) => {
                     const key = String(column.id);
                     const rawValue = (row as unknown as Record<string, unknown>)[key];

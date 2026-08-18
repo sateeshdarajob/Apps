@@ -63,3 +63,16 @@ export {
   buildGanttRows,
 } from './roadmap';
 export type { TimelineViewMode, TimelineColumn, GanttRow } from './roadmap';
+export {
+  isOpenDependency,
+  isCriticalDependency,
+  isOverdueDependency,
+  isBlockingDependency,
+  isDueWithinDays,
+  buildDependencyKpis,
+  aggregateDependencyAging,
+  aggregateDependenciesBySeverity,
+  aggregateDependenciesByTeam,
+  buildDependencyTableRows,
+} from './dependencies';
+export type { DependencyTableRow } from './dependencies';
