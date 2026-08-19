@@ -1,19 +1,20 @@
 import { useQueries } from '@tanstack/react-query';
-import { decisionService, programService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 export function useDecisionsData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['decisions-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['decisions-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['decisions-decisions', filters, refreshKey],
-        queryFn: () => decisionService.getDecisions(filters),
+        queryKey: ['decisions-decisions', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDecisions(filters),
       },
     ],
   });

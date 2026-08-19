@@ -6,6 +6,7 @@ import type {
   Dependency,
   GlobalFilters,
   Incident,
+  Issue,
   Kpi,
   Milestone,
   Program,
@@ -15,7 +16,6 @@ import type {
   Sprint,
   WorkItemAgingBucket,
 } from '@/types';
-import { programs } from '@/data/mock';
 
 export type FilterableByProgram = {
   programId?: string;
@@ -41,14 +41,22 @@ export type FilterableByRag = {
   rag?: string;
 };
 
+/** Catalog required for program-scoped filtering — supplied by DataProvider, not mock imports. */
+export type FilterContext = {
+  programs: Program[];
+};
+
 function isAll(value: string | undefined): boolean {
   return !value || value === 'all';
 }
 
-function programIdsMatchingFilters(filters?: Partial<GlobalFilters>): Set<string> | null {
+function programIdsMatchingFilters(
+  programCatalog: Program[],
+  filters?: Partial<GlobalFilters>,
+): Set<string> | null {
   if (!filters) return null;
 
-  const matched = programs.filter((program) => matchesProgramFilters(program, filters));
+  const matched = programCatalog.filter((program) => matchesProgramFilters(program, filters));
   return new Set(matched.map((program) => program.id));
 }
 
@@ -72,11 +80,12 @@ export function matchesProgramFilters(program: Program, filters?: Partial<Global
  */
 export function matchesProgramScopedFilters<T extends FilterableByProgram>(
   item: T,
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  programCatalog: Program[],
 ): boolean {
   if (!filters) return true;
 
-  const allowedProgramIds = programIdsMatchingFilters(filters);
+  const allowedProgramIds = programIdsMatchingFilters(programCatalog, filters);
   if (!allowedProgramIds) return true;
 
   if (item.programId) {
@@ -133,45 +142,67 @@ export function filterPrograms(items: Program[], filters?: Partial<GlobalFilters
 
 export function filterMilestones(
   items: Milestone[],
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
 ): Milestone[] {
   return items.filter(
-    (item) => matchesProgramScopedFilters(item, filters) && matchesQuarterFilters(item, filters),
+    (item) =>
+      matchesProgramScopedFilters(item, filters, ctx.programs) &&
+      matchesQuarterFilters(item, filters),
   );
 }
 
 export function filterDependencies(
   items: Dependency[],
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
 ): Dependency[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
-export function filterRisks(items: Risk[], filters?: Partial<GlobalFilters>): Risk[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+export function filterRisks(
+  items: Risk[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Risk[] {
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
-export function filterReleases(items: Release[], filters?: Partial<GlobalFilters>): Release[] {
+export function filterReleases(
+  items: Release[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Release[] {
   return items.filter(
-    (item) => matchesProgramScopedFilters(item, filters) && matchesRagFilters(item, filters),
+    (item) =>
+      matchesProgramScopedFilters(item, filters, ctx.programs) && matchesRagFilters(item, filters),
   );
 }
 
-export function filterIncidents(items: Incident[], filters?: Partial<GlobalFilters>): Incident[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+export function filterIncidents(
+  items: Incident[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Incident[] {
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
-export function filterDecisions(items: Decision[], filters?: Partial<GlobalFilters>): Decision[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+export function filterDecisions(
+  items: Decision[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Decision[] {
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
 export function filterRoadmapItems(
   items: RoadmapItem[],
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
 ): RoadmapItem[] {
   return items.filter(
     (item) =>
-      matchesProgramScopedFilters(item, filters) &&
+      matchesProgramScopedFilters(item, filters, ctx.programs) &&
       matchesTeamFilters(item, filters) &&
       matchesProductFilters(item, filters) &&
       matchesQuarterFilters(item, filters) &&
@@ -179,23 +210,46 @@ export function filterRoadmapItems(
   );
 }
 
-export function filterSprints(items: Sprint[], filters?: Partial<GlobalFilters>): Sprint[] {
+export function filterSprints(
+  items: Sprint[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Sprint[] {
   return items.filter(
     (item) =>
-      matchesProgramScopedFilters(item, filters) &&
+      matchesProgramScopedFilters(item, filters, ctx.programs) &&
       matchesTeamFilters(item, filters) &&
       matchesRagFilters(item, filters),
   );
 }
 
-export function filterDefects(items: Defect[], filters?: Partial<GlobalFilters>): Defect[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+export function filterDefects(
+  items: Defect[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Defect[] {
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
-export function filterCapacities(items: Capacity[], filters?: Partial<GlobalFilters>): Capacity[] {
+export function filterIssues(
+  items: Issue[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Issue[] {
   return items.filter(
     (item) =>
-      matchesProgramScopedFilters(item, filters) &&
+      matchesProgramScopedFilters(item, filters, ctx.programs) && matchesTeamFilters(item, filters),
+  );
+}
+
+export function filterCapacities(
+  items: Capacity[],
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
+): Capacity[] {
+  return items.filter(
+    (item) =>
+      matchesProgramScopedFilters(item, filters, ctx.programs) &&
       matchesTeamFilters(item, filters) &&
       matchesPortfolioFilters(item, filters) &&
       matchesProductFilters(item, filters) &&
@@ -231,16 +285,19 @@ export function filterKpis(items: Kpi[], filters?: Partial<GlobalFilters>): Kpi[
 
 export function filterDeliveryPeriodMetrics(
   items: DeliveryPeriodMetric[],
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
 ): DeliveryPeriodMetric[] {
-  return items.filter((item) => matchesProgramScopedFilters(item, filters));
+  return items.filter((item) => matchesProgramScopedFilters(item, filters, ctx.programs));
 }
 
 export function filterWorkItemAging(
   items: WorkItemAgingBucket[],
-  filters?: Partial<GlobalFilters>,
+  filters: Partial<GlobalFilters> | undefined,
+  ctx: FilterContext,
 ): WorkItemAgingBucket[] {
   return items.filter(
-    (item) => matchesProgramScopedFilters(item, filters) && matchesTeamFilters(item, filters),
+    (item) =>
+      matchesProgramScopedFilters(item, filters, ctx.programs) && matchesTeamFilters(item, filters),
   );
 }

@@ -1,19 +1,20 @@
 import { useQueries } from '@tanstack/react-query';
-import { capacityService, programService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 export function useResourcesData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['resources-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['resources-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['resources-capacity', filters, refreshKey],
-        queryFn: () => capacityService.getCapacities(filters),
+        queryKey: ['resources-capacity', provider.id, filters, refreshKey],
+        queryFn: () => provider.getCapacities(filters),
       },
     ],
   });

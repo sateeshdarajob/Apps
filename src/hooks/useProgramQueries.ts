@@ -1,65 +1,73 @@
 import { useQuery } from '@tanstack/react-query';
-import { programService, orgService, chartService, filterOptionsService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 export function usePrograms() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   return useQuery({
-    queryKey: ['programs', filters, refreshKey],
-    queryFn: () => programService.getPrograms(filters),
+    queryKey: ['programs', provider.id, filters, refreshKey],
+    queryFn: () => provider.getPrograms(filters),
   });
 }
 
 /** Unfiltered program list for global filter dropdowns. */
 export function useProgramOptions() {
+  const provider = useDataProvider();
+
   return useQuery({
-    queryKey: ['program-options'],
-    queryFn: () => programService.getPrograms(),
+    queryKey: ['program-options', provider.id],
+    queryFn: () => provider.getPrograms(),
   });
 }
 
 export function usePortfolioKpis() {
+  const provider = useDataProvider();
   const { refreshKey } = useGlobalFilters();
 
   return useQuery({
-    queryKey: ['portfolio-kpis', refreshKey],
-    queryFn: () => programService.getPortfolioKpis(),
+    queryKey: ['portfolio-kpis', provider.id, refreshKey],
+    queryFn: () => provider.getPortfolioKpis(),
   });
 }
 
 export function useOrgUnits() {
+  const provider = useDataProvider();
+
   return useQuery({
-    queryKey: ['org-units'],
-    queryFn: () => orgService.getOrgUnits(),
+    queryKey: ['org-units', provider.id],
+    queryFn: () => provider.getOrgUnits(),
   });
 }
 
 export function useDeliveryVelocity() {
+  const provider = useDataProvider();
   const { refreshKey } = useGlobalFilters();
 
   return useQuery({
-    queryKey: ['delivery-velocity', refreshKey],
-    queryFn: () => chartService.getDeliveryVelocity(),
+    queryKey: ['delivery-velocity', provider.id, refreshKey],
+    queryFn: async () => (await provider.getMetrics()).deliveryVelocity,
   });
 }
 
 export function useFilterOptions() {
+  const provider = useDataProvider();
   const portfolios = useQuery({
-    queryKey: ['filter-portfolios'],
-    queryFn: () => filterOptionsService.getPortfolios(),
+    queryKey: ['filter-portfolios', provider.id],
+    queryFn: () => provider.getPortfolios(),
   });
   const teams = useQuery({
-    queryKey: ['filter-teams'],
-    queryFn: () => filterOptionsService.getTeams(),
+    queryKey: ['filter-teams', provider.id],
+    queryFn: () => provider.getTeams(),
   });
   const products = useQuery({
-    queryKey: ['filter-products'],
-    queryFn: () => filterOptionsService.getProducts(),
+    queryKey: ['filter-products', provider.id],
+    queryFn: () => provider.getProducts(),
   });
   const quarters = useQuery({
-    queryKey: ['filter-quarters'],
-    queryFn: () => filterOptionsService.getQuarters(),
+    queryKey: ['filter-quarters', provider.id],
+    queryFn: () => provider.getQuarters(),
   });
   const programs = useProgramOptions();
 
@@ -79,17 +87,20 @@ export function useFilterOptions() {
 }
 
 export function useCurrentUser() {
+  const provider = useDataProvider();
+
   return useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => filterOptionsService.getCurrentUser(),
+    queryKey: ['current-user', provider.id],
+    queryFn: () => provider.getCurrentUser(),
   });
 }
 
 export function useNotifications() {
+  const provider = useDataProvider();
   const { refreshKey } = useGlobalFilters();
 
   return useQuery({
-    queryKey: ['notifications', refreshKey],
-    queryFn: () => filterOptionsService.getNotifications(),
+    queryKey: ['notifications', provider.id, refreshKey],
+    queryFn: () => provider.getNotifications(),
   });
 }

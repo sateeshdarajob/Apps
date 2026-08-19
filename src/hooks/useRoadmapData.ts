@@ -1,43 +1,37 @@
 import { useQueries } from '@tanstack/react-query';
-import {
-  decisionService,
-  dependencyService,
-  milestoneService,
-  programService,
-  releaseService,
-  roadmapService,
-} from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 /** Filter-aware datasets for the portfolio Roadmap view. */
 export function useRoadmapData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['roadmap-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['roadmap-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['roadmap-items', filters, refreshKey],
-        queryFn: () => roadmapService.getRoadmapItems(filters),
+        queryKey: ['roadmap-items', provider.id, filters, refreshKey],
+        queryFn: () => provider.getRoadmapItems(filters),
       },
       {
-        queryKey: ['roadmap-milestones', filters, refreshKey],
-        queryFn: () => milestoneService.getMilestones(filters),
+        queryKey: ['roadmap-milestones', provider.id, filters, refreshKey],
+        queryFn: () => provider.getMilestones(filters),
       },
       {
-        queryKey: ['roadmap-releases', filters, refreshKey],
-        queryFn: () => releaseService.getReleases(filters),
+        queryKey: ['roadmap-releases', provider.id, filters, refreshKey],
+        queryFn: () => provider.getReleases(filters),
       },
       {
-        queryKey: ['roadmap-dependencies', filters, refreshKey],
-        queryFn: () => dependencyService.getDependencies(filters),
+        queryKey: ['roadmap-dependencies', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDependencies(filters),
       },
       {
-        queryKey: ['roadmap-decisions', filters, refreshKey],
-        queryFn: () => decisionService.getDecisions(filters),
+        queryKey: ['roadmap-decisions', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDecisions(filters),
       },
     ],
   });

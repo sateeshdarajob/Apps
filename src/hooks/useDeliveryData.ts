@@ -1,32 +1,33 @@
 import { useQueries } from '@tanstack/react-query';
-import { deliveryService, milestoneService, programService, sprintService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 /** Filter-aware datasets for the Delivery execution dashboard. */
 export function useDeliveryData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['delivery-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['delivery-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['delivery-sprints', filters, refreshKey],
-        queryFn: () => sprintService.getSprints(filters),
+        queryKey: ['delivery-sprints', provider.id, filters, refreshKey],
+        queryFn: () => provider.getSprints(filters),
       },
       {
-        queryKey: ['delivery-milestones', filters, refreshKey],
-        queryFn: () => milestoneService.getMilestones(filters),
+        queryKey: ['delivery-milestones', provider.id, filters, refreshKey],
+        queryFn: () => provider.getMilestones(filters),
       },
       {
-        queryKey: ['delivery-period-metrics', filters, refreshKey],
-        queryFn: () => deliveryService.getPeriodMetrics(filters),
+        queryKey: ['delivery-period-metrics', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDeliveryPeriodMetrics(filters),
       },
       {
-        queryKey: ['delivery-aging', filters, refreshKey],
-        queryFn: () => deliveryService.getWorkItemAging(filters),
+        queryKey: ['delivery-aging', provider.id, filters, refreshKey],
+        queryFn: () => provider.getWorkItemAging(filters),
       },
     ],
   });

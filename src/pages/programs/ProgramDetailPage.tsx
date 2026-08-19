@@ -5,58 +5,51 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { LoadingState, PageHeader, SectionCard, EmptyState } from '@/components/common';
 import { StatusBadge, RagDot } from '@/components/status';
 import { DataTable } from '@/components/tables';
-import {
-  capacityService,
-  decisionService,
-  dependencyService,
-  incidentService,
-  programService,
-  releaseService,
-  riskService,
-} from '@/services';
+import { useDataProvider } from '@/providers';
 import type { Milestone, TableColumn } from '@/types';
 import { evaluateProgramHealth, formatPercent, titleCase } from '@/utils';
 
 export function ProgramDetailPage() {
   const { programId = '' } = useParams();
   const navigate = useNavigate();
+  const provider = useDataProvider();
 
   const { data: program, isLoading } = useQuery({
-    queryKey: ['program-detail', programId],
-    queryFn: () => programService.getProgramById(programId),
+    queryKey: ['program-detail', provider.id, programId],
+    queryFn: () => provider.getProgramById(programId),
     enabled: Boolean(programId),
   });
 
   const related = useQueries({
     queries: [
       {
-        queryKey: ['program-detail-deps', programId],
-        queryFn: () => dependencyService.getDependencies({ programId }),
+        queryKey: ['program-detail-deps', provider.id, programId],
+        queryFn: () => provider.getDependencies({ programId }),
         enabled: Boolean(programId),
       },
       {
-        queryKey: ['program-detail-risks', programId],
-        queryFn: () => riskService.getRisks({ programId }),
+        queryKey: ['program-detail-risks', provider.id, programId],
+        queryFn: () => provider.getRisks({ programId }),
         enabled: Boolean(programId),
       },
       {
-        queryKey: ['program-detail-releases', programId],
-        queryFn: () => releaseService.getReleases({ programId }),
+        queryKey: ['program-detail-releases', provider.id, programId],
+        queryFn: () => provider.getReleases({ programId }),
         enabled: Boolean(programId),
       },
       {
-        queryKey: ['program-detail-incidents', programId],
-        queryFn: () => incidentService.getIncidents({ programId }),
+        queryKey: ['program-detail-incidents', provider.id, programId],
+        queryFn: () => provider.getIncidents({ programId }),
         enabled: Boolean(programId),
       },
       {
-        queryKey: ['program-detail-decisions', programId],
-        queryFn: () => decisionService.getDecisions({ programId }),
+        queryKey: ['program-detail-decisions', provider.id, programId],
+        queryFn: () => provider.getDecisions({ programId }),
         enabled: Boolean(programId),
       },
       {
-        queryKey: ['program-detail-capacity', programId],
-        queryFn: () => capacityService.getCapacities({ programId }),
+        queryKey: ['program-detail-capacity', provider.id, programId],
+        queryFn: () => provider.getCapacities({ programId }),
         enabled: Boolean(programId),
       },
     ],

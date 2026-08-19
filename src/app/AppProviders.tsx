@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import type { ReactNode } from 'react';
 import { appTheme } from '@/theme';
+import { DataProviderHost } from '@/providers';
 import { FilterProvider } from './FilterProvider';
 import { RoleProvider } from './RoleProvider';
 
@@ -24,9 +25,11 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={appTheme}>
         <CssBaseline />
-        <RoleProvider>
-          <FilterProvider>{children}</FilterProvider>
-        </RoleProvider>
+        <DataProviderHost>
+          <RoleProvider>
+            <FilterProvider>{children}</FilterProvider>
+          </RoleProvider>
+        </DataProviderHost>
       </ThemeProvider>
     </QueryClientProvider>
   );

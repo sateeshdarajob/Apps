@@ -1,6 +1,6 @@
 /**
- * Central mock data barrel. UI and services should import from here
- * (or via services) rather than embedding business data in components.
+ * Central mock data barrel.
+ * Import only from MockDataProvider (or tests) — UI/hooks must use DataProvider.
  */
 
 export {

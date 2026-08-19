@@ -49,6 +49,8 @@ export type { GlobalFilters } from './filters';
 export type { NavigationItem, ChartSeriesPoint, NamedSeries, TableColumn } from './ui';
 export type { DashboardRole, OverviewSectionId } from './role';
 export { DASHBOARD_ROLE_OPTIONS } from './role';
+export type { Issue, IssueType } from './issue';
+export type { PortfolioMetrics } from './metrics';
 
 /** @deprecated Use Program.rag / Program.status instead. */
 export type ProgramHealth = import('./common').RagStatus;
