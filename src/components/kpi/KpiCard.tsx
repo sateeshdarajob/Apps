@@ -1,8 +1,8 @@
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
-import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
-import type { KpiMetric } from '@/types';
+import { Box, Card, CardActionArea, CardContent, Tooltip, Typography } from '@mui/material';
+import type { KpiMetric, RagStatus } from '@/types';
 import { formatDelta } from '@/utils';
 import { StatusBadge } from '@/components/status';
 
@@ -12,47 +12,85 @@ type KpiCardProps = {
 };
 
 function TrendIcon({ trend }: { trend?: KpiMetric['trend'] }) {
-  if (trend === 'up') return <TrendingUpIcon fontSize="small" color="success" />;
-  if (trend === 'down') return <TrendingDownIcon fontSize="small" color="error" />;
-  if (trend === 'flat') return <TrendingFlatIcon fontSize="small" color="disabled" />;
+  const sx = { fontSize: 16, color: 'text.secondary' };
+  if (trend === 'up') return <TrendingUpIcon sx={sx} />;
+  if (trend === 'down') return <TrendingDownIcon sx={sx} />;
+  if (trend === 'flat') return <TrendingFlatIcon sx={sx} />;
   return null;
 }
 
+function statusAccent(status?: RagStatus): string | undefined {
+  if (status === 'red') return 'error.main';
+  if (status === 'amber') return 'warning.main';
+  return undefined;
+}
+
 export function KpiCard({ metric, onClick }: KpiCardProps) {
+  const accent = statusAccent(metric.status);
+
   const content = (
-    <CardContent sx={{ p: 2.25, '&:last-child': { pb: 2.25 } }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Typography variant="subtitle2" color="text.secondary">
+    <CardContent sx={{ p: 1.75, '&:last-child': { pb: 1.75 } }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 1,
+          minHeight: 22,
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          color="text.secondary"
+          sx={{
+            lineHeight: 1.3,
+            pr: 0.5,
+          }}
+        >
           {metric.label}
         </Typography>
-        {metric.status && <StatusBadge status={metric.status} />}
+        {metric.status && (metric.status === 'red' || metric.status === 'amber') ? (
+          <StatusBadge status={metric.status} />
+        ) : null}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, mt: 1 }}>
-        <Typography variant="h1" component="p" sx={{ fontSize: '1.75rem' }}>
+      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, mt: 1 }}>
+        <Typography
+          variant="h1"
+          component="p"
+          sx={{
+            fontSize: { xs: '1.375rem', md: '1.5rem' },
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: '-0.02em',
+          }}
+        >
           {metric.value}
-          {metric.unit ? (
-            <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
-              {metric.unit}
-            </Typography>
-          ) : null}
         </Typography>
+        {metric.unit ? (
+          <Typography component="span" variant="caption" color="text.secondary">
+            {metric.unit}
+          </Typography>
+        ) : null}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 1.25, minHeight: 24 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.75,
+          mt: 1,
+          minHeight: 18,
+          flexWrap: 'wrap',
+        }}
+      >
         <TrendIcon trend={metric.trend} />
         {typeof metric.delta === 'number' && (
-          <Typography
-            variant="caption"
-            color={
-              metric.delta > 0 ? 'error.main' : metric.delta < 0 ? 'success.main' : 'text.secondary'
-            }
-          >
-            {formatDelta(metric.delta)} pts
+          <Typography variant="caption" color="text.secondary" sx={{ fontVariantNumeric: 'tabular-nums' }}>
+            {formatDelta(metric.delta)}
           </Typography>
         )}
         {metric.helperText && (
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" color="text.secondary" noWrap title={metric.helperText}>
             {metric.helperText}
           </Typography>
         )}
@@ -60,29 +98,42 @@ export function KpiCard({ metric, onClick }: KpiCardProps) {
     </CardContent>
   );
 
-  return (
+  const card = (
     <Card
       sx={{
         height: '100%',
-        transition: 'border-color 120ms ease, box-shadow 120ms ease',
+        borderLeft: accent ? '3px solid' : undefined,
+        borderLeftColor: accent,
+        transition: 'border-color 120ms ease, background-color 120ms ease',
         ...(onClick
           ? {
               '&:hover': {
                 borderColor: 'primary.light',
-                boxShadow: '0 0 0 1px rgba(11, 58, 83, 0.12)',
+                bgcolor: 'action.hover',
               },
             }
           : {}),
       }}
     >
       {onClick ? (
-        <CardActionArea onClick={onClick} sx={{ height: '100%', alignItems: 'stretch' }}>
+        <CardActionArea
+          onClick={onClick}
+          sx={{ height: '100%', alignItems: 'stretch', borderRadius: 'inherit' }}
+        >
           {content}
         </CardActionArea>
       ) : (
         content
       )}
     </Card>
+  );
+
+  if (!onClick) return card;
+
+  return (
+    <Tooltip title={`Open ${metric.label}`} placement="top" enterDelay={600}>
+      <Box sx={{ height: '100%' }}>{card}</Box>
+    </Tooltip>
   );
 }
 
@@ -97,12 +148,13 @@ export function KpiCardGrid({ metrics, onMetricClick, columns = 4 }: KpiCardGrid
     <Box
       sx={{
         display: 'grid',
-        gap: 2,
+        gap: 1.5,
         gridTemplateColumns: {
           xs: '1fr',
-          sm: 'repeat(2, 1fr)',
-          md: `repeat(${Math.min(columns, 4)}, 1fr)`,
-          xl: `repeat(${columns}, 1fr)`,
+          sm: 'repeat(2, minmax(0, 1fr))',
+          md: `repeat(${Math.min(columns, 4)}, minmax(0, 1fr))`,
+          lg: `repeat(${Math.min(columns, 6)}, minmax(0, 1fr))`,
+          xl: `repeat(${columns}, minmax(0, 1fr))`,
         },
       }}
     >

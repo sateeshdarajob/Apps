@@ -1,2 +1,2 @@
-export { PageHeader, LoadingState, EmptyState, PlaceholderPanel } from './PagePrimitives';
+export { PageHeader, LoadingState, EmptyState, ErrorState, PlaceholderPanel } from './PagePrimitives';
 export { SectionCard } from './SectionCard';

@@ -59,7 +59,7 @@ export function ReleasesPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Releases"
         description="Release governance and production readiness visibility across the portfolio."

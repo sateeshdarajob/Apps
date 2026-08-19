@@ -38,7 +38,7 @@ export function DecisionsPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Decisions"
         description="Decision register with aging, escalation, and milestone-blocking highlights."

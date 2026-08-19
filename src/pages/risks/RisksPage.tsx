@@ -51,7 +51,7 @@ export function RisksPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Risks"
         description="Risk register, probability × impact heatmap, and executive-attention highlights."

@@ -67,7 +67,7 @@ export function DeliveryPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Delivery performance"
         description="Sprint predictability, milestone adherence, and execution signals for TPM-level delivery control."
