@@ -47,7 +47,7 @@ export function DependenciesPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Dependencies"
         description="Cross-program blockers, aging, and escalation posture — filterable across the portfolio."

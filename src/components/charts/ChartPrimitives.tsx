@@ -17,6 +17,18 @@ import {
 } from 'recharts';
 import type { ChartSeriesPoint, RagStatus } from '@/types';
 
+const CHART_GRID = '#E4EBEF';
+const CHART_AXIS = '#8A9BA8';
+const TOOLTIP_STYLE = {
+  backgroundColor: '#1A2B36',
+  border: 'none',
+  borderRadius: 4,
+  fontSize: 12,
+  color: '#fff',
+  padding: '8px 10px',
+  boxShadow: '0 4px 12px rgba(15, 26, 34, 0.18)',
+};
+
 type ChartCardProps = {
   title: string;
   subtitle?: string;
@@ -26,18 +38,26 @@ type ChartCardProps = {
   id?: string;
 };
 
-export function ChartCard({ title, subtitle, children, height = 280, action, id }: ChartCardProps) {
+export function ChartCard({ title, subtitle, children, height = 220, action, id }: ChartCardProps) {
   return (
     <Card id={id} sx={{ height: '100%' }}>
-      <CardContent>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Box
-          sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: subtitle ? 0 : 1 }}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 1.5,
+            mb: subtitle ? 0.25 : 1.25,
+          }}
         >
-          <Typography variant="h4">{title}</Typography>
-          {action}
+          <Typography variant="h4" component="h3">
+            {title}
+          </Typography>
+          {action && <Box sx={{ flexShrink: 0 }}>{action}</Box>}
         </Box>
         {subtitle && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.4 }}>
             {subtitle}
           </Typography>
         )}
@@ -55,12 +75,12 @@ type SimpleLineChartProps = {
 export function SimpleLineChart({ data, color = '#0B3A53' }: SimpleLineChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
-        <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} dot={{ r: 3 }} />
+      <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ stroke: CHART_GRID }} />
+        <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} dot={{ r: 2.5, strokeWidth: 0 }} activeDot={{ r: 4 }} />
       </LineChart>
     </ResponsiveContainer>
   );
@@ -71,24 +91,24 @@ type SimpleBarChartProps = {
   color?: string;
 };
 
-export function SimpleBarChart({ data, color = '#3D8B6E' }: SimpleBarChartProps) {
+export function SimpleBarChart({ data, color = '#0B3A53' }: SimpleBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
-        <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(11, 58, 83, 0.04)' }} />
+        <Bar dataKey="value" fill={color} radius={[3, 3, 0, 0]} maxBarSize={42} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
 const RAG_COLORS: Record<'green' | 'amber' | 'red', string> = {
-  green: '#2E7D4F',
-  amber: '#C47A11',
-  red: '#C62828',
+  green: '#1F6B45',
+  amber: '#A86810',
+  red: '#B42318',
 };
 
 type RagDonutChartProps = {
@@ -129,7 +149,7 @@ export function RagDonutChart({ data, activeStatus = 'all', onSegmentClick }: Ra
             />
           ))}
         </Pie>
-        <Tooltip />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Legend verticalAlign="bottom" height={28} />
       </PieChart>
     </ResponsiveContainer>
@@ -149,16 +169,16 @@ type MilestoneStackedBarProps = {
 export function MilestoneStackedBar({ data }: MilestoneStackedBarProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Legend />
-        <Bar dataKey="completed" stackId="a" fill="#2E7D4F" name="Completed" />
-        <Bar dataKey="inProgress" stackId="a" fill="#1565A0" name="In Progress" />
-        <Bar dataKey="atRisk" stackId="a" fill="#C47A11" name="At Risk" />
-        <Bar dataKey="delayed" stackId="a" fill="#C62828" name="Delayed" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="completed" stackId="a" fill="#1F6B45" name="Completed" />
+        <Bar dataKey="inProgress" stackId="a" fill="#175C8A" name="In Progress" />
+        <Bar dataKey="atRisk" stackId="a" fill="#A86810" name="At Risk" />
+        <Bar dataKey="delayed" stackId="a" fill="#B42318" name="Delayed" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -171,11 +191,11 @@ type DualLineChartProps = {
 export function DualLineChart({ data }: DualLineChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
+      <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Legend />
         <Line
           type="monotone"
@@ -206,14 +226,14 @@ type ScopeChangeBarProps = {
 export function ScopeChangeBar({ data }: ScopeChangeBarProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Legend />
         <Bar dataKey="original" name="Original Scope" fill="#0B3A53" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="added" name="Added Scope" fill="#C47A11" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="added" name="Added Scope" fill="#A86810" radius={[4, 4, 0, 0]} />
         <Bar dataKey="removed" name="Removed Scope" fill="#8A9BA8" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
@@ -233,11 +253,11 @@ export function ClickableLineChart({
 }: ClickableLineChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} domain={[0, 100]} />
-        <Tooltip />
+      <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} domain={[0, 100]} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Line
           type="monotone"
           dataKey="value"
@@ -264,15 +284,15 @@ type AgingBarChartProps = {
 };
 
 export function AgingBarChart({ data, onBarClick }: AgingBarChartProps) {
-  const colors = ['#2E7D4F', '#1565A0', '#C47A11', '#C62828'];
+  const colors = ['#1F6B45', '#175C8A', '#A86810', '#B42318'];
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="#8A9BA8" />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Bar
           dataKey="value"
           radius={[4, 4, 0, 0]}
@@ -298,14 +318,14 @@ type DualSeriesBarChartProps = {
 export function DualSeriesBarChart({ data }: DualSeriesBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
-        <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="#8A9BA8" />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
-        <Tooltip />
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} axisLine={false} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: CHART_AXIS }} stroke={CHART_AXIS} width={32} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Legend />
-        <Bar dataKey="capacity" name="Capacity" fill="#0B3A53" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="demand" name="Demand" fill="#C47A11" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="capacity" name="Capacity" fill="#0B3A53" radius={[3, 3, 0, 0]} maxBarSize={36} />
+        <Bar dataKey="demand" name="Demand" fill="#A86810" radius={[3, 3, 0, 0]} maxBarSize={36} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -324,10 +344,10 @@ type ProbabilityImpactHeatmapProps = {
 };
 
 function heatmapColor(count: number): string {
-  if (count <= 0) return '#F4F7F9';
-  if (count === 1) return '#F6E2B8';
-  if (count === 2) return '#E8A23A';
-  return '#C62828';
+  if (count <= 0) return '#F7F9FB';
+  if (count === 1) return '#F3E6CF';
+  if (count === 2) return '#D0923A';
+  return '#B42318';
 }
 
 export function ProbabilityImpactHeatmap({

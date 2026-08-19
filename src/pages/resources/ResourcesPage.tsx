@@ -47,7 +47,7 @@ export function ResourcesPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Resources & Capacity"
         description="Engineering capacity versus roadmap demand — utilization, gaps, and team risk flags."

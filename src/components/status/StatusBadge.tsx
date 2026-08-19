@@ -17,11 +17,12 @@ export function StatusBadge({ status, label, size = 'small' }: StatusBadgeProps)
       size={size}
       label={label ?? RAG_LABELS[status]}
       sx={{
-        bgcolor: `${color}18`,
+        bgcolor: `${color}14`,
         color,
-        border: `1px solid ${color}55`,
+        border: `1px solid ${color}40`,
         fontWeight: 600,
-        '& .MuiChip-label': { px: 1 },
+        height: size === 'small' ? 20 : 24,
+        '& .MuiChip-label': { px: 0.85, lineHeight: 1 },
       }}
     />
   );
@@ -37,21 +38,23 @@ export function RagDot({ status, withLabel = false }: RagDotProps) {
   const color = getRagColor(theme, status);
 
   return (
-    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
       <Box
         component="span"
         aria-label={RAG_LABELS[status]}
+        title={RAG_LABELS[status]}
         sx={{
-          width: 10,
-          height: 10,
+          width: 8,
+          height: 8,
           borderRadius: '50%',
           bgcolor: color,
           display: 'inline-block',
           flexShrink: 0,
+          boxShadow: `0 0 0 2px ${color}22`,
         }}
       />
       {withLabel && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="caption" color="text.secondary">
           {RAG_LABELS[status]}
         </Typography>
       )}

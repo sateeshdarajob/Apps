@@ -102,19 +102,22 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
           justifyContent: showLabels ? 'space-between' : 'center',
           px: showLabels ? 2 : 1,
           py: 1.75,
-          minHeight: 64,
-          borderBottom: '1px solid rgba(255,255,255,0.12)',
+          minHeight: 56,
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
         {showLabels && (
-          <Box sx={{ minWidth: 0 }}>
+          <Box sx={{ minWidth: 0, pr: 1 }}>
             <Typography
-              variant="caption"
-              sx={{ opacity: 0.7, letterSpacing: 0.8, textTransform: 'uppercase' }}
+              variant="overline"
+              sx={{ opacity: 0.65, display: 'block', lineHeight: 1.2 }}
             >
               Engineering
             </Typography>
-            <Typography variant="h6" sx={{ lineHeight: 1.15, color: 'inherit', fontWeight: 600 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ lineHeight: 1.2, color: 'inherit', fontWeight: 600, fontSize: '0.9rem' }}
+            >
               TPM Control Tower
             </Typography>
           </Box>

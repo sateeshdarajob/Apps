@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ChartCard, MilestoneStackedBar, RagDonutChart } from '@/components/charts';
-import { LoadingState, PageHeader, SectionCard } from '@/components/common';
+import { LoadingState, PageHeader, SectionCard, ErrorState } from '@/components/common';
 import { KpiCardGrid } from '@/components/kpi';
 import { StatusBadge, RagDot } from '@/components/status';
 import { DataTable } from '@/components/tables';
@@ -81,6 +81,7 @@ export function OverviewPage() {
     capacities,
     outcomes,
     isLoading,
+    isError,
   } = useOverviewData();
 
   const show = (section: Parameters<typeof roleShowsSection>[1]) =>
@@ -243,8 +244,18 @@ export function OverviewPage() {
     return <LoadingState label="Loading executive overview…" />;
   }
 
+  if (isError) {
+    return (
+      <ErrorState
+        title="Overview unavailable"
+        description="Portfolio signals could not be loaded for the current filters."
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Executive overview"
         description="Portfolio health, exceptions, and decisions needing attention — optimized for a 30-second scan."
@@ -537,34 +548,68 @@ function ActionRow({
   return (
     <Box
       onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
       sx={{
         display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: '140px 1fr auto' },
-        gap: 1,
-        alignItems: 'start',
-        p: 1.25,
-        borderRadius: 1.5,
+        gridTemplateColumns: { xs: '1fr', md: '132px minmax(0, 1fr) auto' },
+        gap: { xs: 0.75, md: 1.25 },
+        alignItems: 'center',
+        px: 1.25,
+        py: 1,
+        borderRadius: 1,
         border: '1px solid',
         borderColor: 'divider',
+        borderLeft: '3px solid',
+        borderLeftColor: meta.color,
         cursor: 'pointer',
-        '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+        transition: 'background-color 120ms ease, border-color 120ms ease',
+        '&:hover': { bgcolor: 'action.hover', borderColor: 'grey.300' },
+        '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 1 },
       }}
     >
-      <Typography variant="caption" fontWeight={700} sx={{ color: meta.color }}>
-        {meta.emoji} {meta.label}
+      <Typography
+        variant="overline"
+        sx={{ color: meta.color, lineHeight: 1.2, letterSpacing: '0.04em' }}
+      >
+        {meta.label}
       </Typography>
-      <Box>
-        <Typography variant="body2" fontWeight={700}>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="body2" fontWeight={600} noWrap title={action.title}>
           {action.title}
         </Typography>
-        <Typography variant="caption" color="text.secondary" display="block">
+        <Typography variant="caption" color="text.secondary" noWrap display="block" title={action.reason}>
           {action.program} · {action.reason}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Owner: {action.owner} · Due: {action.dueDate} · {action.recommendedAction}
+        <Typography variant="caption" color="text.secondary" noWrap display="block">
+          {action.owner} · Due {action.dueDate} · {action.recommendedAction}
         </Typography>
       </Box>
-      <Chip size="small" label={titleCase(action.severity)} />
+      <Chip
+        size="small"
+        variant="outlined"
+        label={titleCase(action.severity)}
+        sx={{
+          borderColor:
+            action.severity === 'critical'
+              ? 'error.main'
+              : action.severity === 'high'
+                ? 'warning.main'
+                : 'divider',
+          color:
+            action.severity === 'critical'
+              ? 'error.main'
+              : action.severity === 'high'
+                ? 'warning.main'
+                : 'text.secondary',
+        }}
+      />
     </Box>
   );
 }

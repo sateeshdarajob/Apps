@@ -75,8 +75,9 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
       <Toolbar
         sx={{
           minHeight: `${APP_HEADER_HEIGHT}px !important`,
-          gap: 1.5,
+          gap: 1.25,
           justifyContent: 'space-between',
+          px: { xs: 1.5, md: 2 },
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>

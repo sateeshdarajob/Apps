@@ -47,7 +47,7 @@ export function AppShell() {
         }}
       >
         <Toolbar sx={{ minHeight: `${APP_HEADER_HEIGHT}px !important` }} />
-        <Box sx={{ p: { xs: 1.5, md: 2.5 } }}>
+        <Box sx={{ p: { xs: 1.25, sm: 1.75, md: 2 }, pb: { xs: 3, md: 4 } }}>
           <GlobalFilterBar />
           <Outlet />
         </Box>

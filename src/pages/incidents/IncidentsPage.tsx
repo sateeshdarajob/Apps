@@ -52,7 +52,7 @@ export function IncidentsPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Incidents"
         description="P0/P1 incident governance, MTTR/MTBF, and postmortem corrective-action tracking."

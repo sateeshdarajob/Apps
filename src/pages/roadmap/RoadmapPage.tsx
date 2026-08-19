@@ -101,7 +101,7 @@ export function RoadmapPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <PageHeader
         title="Portfolio roadmap"
         description="Executive timeline of programs, workstreams, milestones, releases, and decision points."

@@ -9,6 +9,7 @@ import {
   Paper,
   Select,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
@@ -55,123 +56,83 @@ export function GlobalFilterBar() {
     <Paper
       variant="outlined"
       sx={{
-        px: { xs: 1.5, md: 2 },
-        py: 1.5,
+        px: { xs: 1.25, md: 1.75 },
+        py: 1.25,
         mb: 2,
         bgcolor: 'background.paper',
+        borderRadius: 1.5,
       }}
     >
-      <Stack spacing={1.5}>
+      <Stack spacing={1.25}>
         <Stack
           direction={{ xs: 'column', xl: 'row' }}
-          spacing={1.5}
+          spacing={1.25}
           alignItems={{ xs: 'stretch', xl: 'center' }}
           justifyContent="space-between"
         >
           <Box
             sx={{
               display: 'grid',
-              gap: 1.25,
+              gap: 1,
               flex: 1,
+              minWidth: 0,
               gridTemplateColumns: {
                 xs: '1fr',
                 sm: 'repeat(2, minmax(0, 1fr))',
                 md: 'repeat(3, minmax(0, 1fr))',
-                lg: 'repeat(4, minmax(120px, 1fr))',
-                xl: 'repeat(7, minmax(120px, 1fr))',
+                lg: 'repeat(4, minmax(0, 1fr))',
+                xl: 'repeat(7, minmax(100px, 1fr))',
               },
             }}
           >
+            <FilterSelect
+              id="filter-portfolio"
+              label="Portfolio"
+              value={filters.portfolioId}
+              onChange={handleFilterChange('portfolioId')}
+              allLabel="All portfolios"
+              options={portfolios.map((item) => ({ value: item.id, label: item.name }))}
+            />
+            <FilterSelect
+              id="filter-program"
+              label="Program"
+              value={filters.programId}
+              onChange={handleFilterChange('programId')}
+              allLabel="All programs"
+              options={programs.map((item) => ({
+                value: item.id,
+                label: `${item.code} — ${item.name}`,
+              }))}
+            />
+            <FilterSelect
+              id="filter-quarter"
+              label="Quarter"
+              value={filters.quarter}
+              onChange={handleFilterChange('quarter')}
+              allLabel="All quarters"
+              options={quarters.map((item) => ({ value: item.id, label: item.label }))}
+            />
+            <FilterSelect
+              id="filter-team"
+              label="Team"
+              value={filters.teamId}
+              onChange={handleFilterChange('teamId')}
+              allLabel="All teams"
+              options={teams.map((item) => ({ value: item.id, label: item.name }))}
+            />
+            <FilterSelect
+              id="filter-product"
+              label="Product"
+              value={filters.productId}
+              onChange={handleFilterChange('productId')}
+              allLabel="All products"
+              options={products.map((item) => ({ value: item.id, label: item.name }))}
+            />
             <FormControl size="small" fullWidth>
-              <InputLabel id="filter-portfolio">Portfolio</InputLabel>
-              <Select
-                labelId="filter-portfolio"
-                label="Portfolio"
-                value={filters.portfolioId}
-                onChange={handleFilterChange('portfolioId')}
-              >
-                <MenuItem value="all">All portfolios</MenuItem>
-                {portfolios.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" fullWidth>
-              <InputLabel id="filter-program">Program</InputLabel>
-              <Select
-                labelId="filter-program"
-                label="Program"
-                value={filters.programId}
-                onChange={handleFilterChange('programId')}
-              >
-                <MenuItem value="all">All programs</MenuItem>
-                {programs.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.code} — {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" fullWidth>
-              <InputLabel id="filter-quarter">Quarter</InputLabel>
-              <Select
-                labelId="filter-quarter"
-                label="Quarter"
-                value={filters.quarter}
-                onChange={handleFilterChange('quarter')}
-              >
-                <MenuItem value="all">All quarters</MenuItem>
-                {quarters.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" fullWidth>
-              <InputLabel id="filter-team">Team</InputLabel>
-              <Select
-                labelId="filter-team"
-                label="Team"
-                value={filters.teamId}
-                onChange={handleFilterChange('teamId')}
-              >
-                <MenuItem value="all">All teams</MenuItem>
-                {teams.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" fullWidth>
-              <InputLabel id="filter-product">Product</InputLabel>
-              <Select
-                labelId="filter-product"
-                label="Product"
-                value={filters.productId}
-                onChange={handleFilterChange('productId')}
-              >
-                <MenuItem value="all">All products</MenuItem>
-                {products.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" fullWidth>
-              <InputLabel id="filter-rag">RAG Status</InputLabel>
+              <InputLabel id="filter-rag">RAG</InputLabel>
               <Select
                 labelId="filter-rag"
-                label="RAG Status"
+                label="RAG"
                 value={filters.ragStatus}
                 onChange={handleFilterChange('ragStatus')}
               >
@@ -182,7 +143,6 @@ export function GlobalFilterBar() {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl size="small" fullWidth>
               <InputLabel id="filter-range">Date Range</InputLabel>
               <Select
@@ -201,16 +161,18 @@ export function GlobalFilterBar() {
           </Box>
 
           <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={1.25}
-            alignItems={{ xs: 'stretch', sm: 'center' }}
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            useFlexGap
+            flexWrap="wrap"
             sx={{ flexShrink: 0 }}
           >
-            <FormControl size="small" sx={{ minWidth: 130 }}>
-              <InputLabel id="auto-refresh">Auto refresh</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 118 }}>
+              <InputLabel id="auto-refresh">Refresh</InputLabel>
               <Select
                 labelId="auto-refresh"
-                label="Auto refresh"
+                label="Refresh"
                 value={autoRefresh}
                 onChange={(event: SelectChangeEvent<string>) =>
                   setAutoRefresh(event.target.value as AutoRefreshInterval)
@@ -224,49 +186,53 @@ export function GlobalFilterBar() {
               </Select>
             </FormControl>
 
-            <Button
-              variant="contained"
-              startIcon={<RefreshIcon />}
-              onClick={refreshNow}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              Refresh Now
-            </Button>
-
-            <Badge badgeContent={activeFilterCount || undefined} color="primary">
+            <Tooltip title="Reload mock data and refresh timestamps">
               <Button
-                variant="outlined"
-                color="inherit"
-                startIcon={<FilterAltOffIcon />}
-                onClick={clearFilters}
-                sx={{ whiteSpace: 'nowrap' }}
+                variant="contained"
+                size="small"
+                startIcon={<RefreshIcon />}
+                onClick={refreshNow}
               >
-                Clear Filters
+                Refresh Now
               </Button>
-            </Badge>
+            </Tooltip>
 
-            <Button
-              variant="text"
-              color="inherit"
-              startIcon={<RestartAltIcon />}
-              onClick={resetFilters}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              Reset to Default
-            </Button>
+            <Tooltip title="Clear all filter dimensions">
+              <Badge badgeContent={activeFilterCount || undefined} color="primary">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="inherit"
+                  startIcon={<FilterAltOffIcon />}
+                  onClick={clearFilters}
+                >
+                  Clear
+                </Button>
+              </Badge>
+            </Tooltip>
 
-            <Box sx={{ minWidth: 150 }}>
-              <Typography variant="caption" color="text.secondary" display="block">
+            <Tooltip title="Restore default quarter and date range">
+              <Button
+                variant="text"
+                size="small"
+                color="inherit"
+                startIcon={<RestartAltIcon />}
+                onClick={resetFilters}
+              >
+                Defaults
+              </Button>
+            </Tooltip>
+
+            <Box sx={{ minWidth: 128, pl: { sm: 0.5 } }}>
+              <Typography variant="overline" display="block" sx={{ lineHeight: 1.2 }}>
                 Last refreshed
               </Typography>
               <Typography
                 variant="body2"
                 fontWeight={600}
                 title={formatTimestamp(lastRefreshedAt)}
+                sx={{ lineHeight: 1.2 }}
               >
-                {formatTimestamp(lastRefreshedAt)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
                 {formatRelativeTime(lastRefreshedAt)}
               </Typography>
             </Box>
@@ -274,14 +240,15 @@ export function GlobalFilterBar() {
         </Stack>
 
         {activeChips.length > 0 && (
-          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
+          <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap" alignItems="center">
             <Typography variant="caption" color="text.secondary" fontWeight={600}>
-              Active filters ({activeFilterCount}):
+              Active ({activeFilterCount})
             </Typography>
             {activeChips.map((chip) => (
               <Chip
                 key={chip.key}
                 size="small"
+                variant="outlined"
                 label={`${chip.label}: ${chip.value}`}
                 onDelete={() =>
                   setFilters({
@@ -299,5 +266,35 @@ export function GlobalFilterBar() {
         )}
       </Stack>
     </Paper>
+  );
+}
+
+function FilterSelect({
+  id,
+  label,
+  value,
+  onChange,
+  allLabel,
+  options,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (event: SelectChangeEvent<string>) => void;
+  allLabel: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <FormControl size="small" fullWidth>
+      <InputLabel id={id}>{label}</InputLabel>
+      <Select labelId={id} label={label} value={value} onChange={onChange}>
+        <MenuItem value="all">{allLabel}</MenuItem>
+        {options.map((item) => (
+          <MenuItem key={item.value} value={item.value}>
+            {item.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }
