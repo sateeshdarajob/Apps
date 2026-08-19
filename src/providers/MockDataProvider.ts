@@ -60,18 +60,14 @@ function delay<T>(value: T, ms = MOCK_LATENCY_MS): Promise<T> {
   });
 }
 
-function defectStatusToWorkflow(status: Defect['status']): string {
-  return status;
-}
-
 function defectToIssue(defect: Defect): Issue {
   return {
     id: defect.id,
     key: defect.id.replace('def-', 'MOCK-'),
     summary: defect.title,
     description: defect.description,
-    issueType: defect.severity === 'blocker' || defect.severity === 'critical' ? 'bug' : 'bug',
-    status: defectStatusToWorkflow(defect.status),
+    issueType: 'bug',
+    status: defect.status,
     priority: defect.priority,
     programId: defect.programId,
     assignee: defect.owner,
