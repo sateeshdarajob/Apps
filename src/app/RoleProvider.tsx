@@ -1,13 +1,7 @@
-import { createContext, useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import type { DashboardRole } from '@/types';
 import { ROLE_STORAGE_KEY } from '@/utils/filterState';
-
-type RoleContextValue = {
-  role: DashboardRole;
-  setRole: (role: DashboardRole) => void;
-};
-
-export const RoleContext = createContext<RoleContextValue | undefined>(undefined);
+import { RoleContext } from './roleContext';
 
 function loadRole(): DashboardRole {
   try {
