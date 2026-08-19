@@ -1,20 +1,20 @@
 import { useQueries } from '@tanstack/react-query';
-import { dependencyService, programService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
-/** Filter-aware datasets for the Dependencies page. */
 export function useDependenciesData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['deps-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['deps-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['deps-dependencies', filters, refreshKey],
-        queryFn: () => dependencyService.getDependencies(filters),
+        queryKey: ['deps-dependencies', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDependencies(filters),
       },
     ],
   });

@@ -25,3 +25,4 @@ export { useIncidentsData } from './useIncidentsData';
 export { useResourcesData } from './useResourcesData';
 export { useDecisionsData } from './useDecisionsData';
 export { useDashboardRole } from './useDashboardRole';
+export { useDataProvider } from '@/providers';

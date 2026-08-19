@@ -1,58 +1,49 @@
 import { useQueries } from '@tanstack/react-query';
-import {
-  capacityService,
-  decisionService,
-  dependencyService,
-  incidentService,
-  milestoneService,
-  programService,
-  releaseService,
-  riskService,
-  businessOutcomeService,
-} from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 /** Aggregated, filter-aware datasets for the Overview executive dashboard. */
 export function useOverviewData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['overview-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['overview-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['overview-milestones', filters, refreshKey],
-        queryFn: () => milestoneService.getMilestones(filters),
+        queryKey: ['overview-milestones', provider.id, filters, refreshKey],
+        queryFn: () => provider.getMilestones(filters),
       },
       {
-        queryKey: ['overview-dependencies', filters, refreshKey],
-        queryFn: () => dependencyService.getDependencies(filters),
+        queryKey: ['overview-dependencies', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDependencies(filters),
       },
       {
-        queryKey: ['overview-risks', filters, refreshKey],
-        queryFn: () => riskService.getRisks(filters),
+        queryKey: ['overview-risks', provider.id, filters, refreshKey],
+        queryFn: () => provider.getRisks(filters),
       },
       {
-        queryKey: ['overview-releases', filters, refreshKey],
-        queryFn: () => releaseService.getReleases(filters),
+        queryKey: ['overview-releases', provider.id, filters, refreshKey],
+        queryFn: () => provider.getReleases(filters),
       },
       {
-        queryKey: ['overview-incidents', filters, refreshKey],
-        queryFn: () => incidentService.getIncidents(filters),
+        queryKey: ['overview-incidents', provider.id, filters, refreshKey],
+        queryFn: () => provider.getIncidents(filters),
       },
       {
-        queryKey: ['overview-decisions', filters, refreshKey],
-        queryFn: () => decisionService.getDecisions(filters),
+        queryKey: ['overview-decisions', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDecisions(filters),
       },
       {
-        queryKey: ['overview-capacities', filters, refreshKey],
-        queryFn: () => capacityService.getCapacities(filters),
+        queryKey: ['overview-capacities', provider.id, filters, refreshKey],
+        queryFn: () => provider.getCapacities(filters),
       },
       {
-        queryKey: ['overview-outcomes', filters, refreshKey],
-        queryFn: () => businessOutcomeService.getBusinessOutcomes(filters),
+        queryKey: ['overview-outcomes', provider.id, filters, refreshKey],
+        queryFn: () => provider.getBusinessOutcomes(filters),
       },
     ],
   });

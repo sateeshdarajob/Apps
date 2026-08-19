@@ -23,11 +23,13 @@ export {
   filterRoadmapItems,
   filterSprints,
   filterDefects,
+  filterIssues,
   filterCapacities,
   filterKpis,
   filterDeliveryPeriodMetrics,
   filterWorkItemAging,
 } from './filters';
+export type { FilterContext } from './filters';
 export {
   daysRemaining,
   scheduleVarianceDays,

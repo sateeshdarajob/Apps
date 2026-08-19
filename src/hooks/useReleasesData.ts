@@ -1,42 +1,36 @@
 import { useQueries } from '@tanstack/react-query';
-import {
-  defectService,
-  incidentService,
-  programService,
-  releaseService,
-  riskService,
-  dependencyService,
-} from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 export function useReleasesData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['releases-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['releases-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['releases-releases', filters, refreshKey],
-        queryFn: () => releaseService.getReleases(filters),
+        queryKey: ['releases-releases', provider.id, filters, refreshKey],
+        queryFn: () => provider.getReleases(filters),
       },
       {
-        queryKey: ['releases-defects', filters, refreshKey],
-        queryFn: () => defectService.getDefects(filters),
+        queryKey: ['releases-defects', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDefects(filters),
       },
       {
-        queryKey: ['releases-incidents', filters, refreshKey],
-        queryFn: () => incidentService.getIncidents(filters),
+        queryKey: ['releases-incidents', provider.id, filters, refreshKey],
+        queryFn: () => provider.getIncidents(filters),
       },
       {
-        queryKey: ['releases-risks', filters, refreshKey],
-        queryFn: () => riskService.getRisks(filters),
+        queryKey: ['releases-risks', provider.id, filters, refreshKey],
+        queryFn: () => provider.getRisks(filters),
       },
       {
-        queryKey: ['releases-dependencies', filters, refreshKey],
-        queryFn: () => dependencyService.getDependencies(filters),
+        queryKey: ['releases-dependencies', provider.id, filters, refreshKey],
+        queryFn: () => provider.getDependencies(filters),
       },
     ],
   });

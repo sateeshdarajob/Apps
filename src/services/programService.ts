@@ -1,140 +1,96 @@
-import {
-  programs,
-  risks,
-  dependencies,
-  orgUnits,
-  people,
-  portfolioKpis,
-  deliveryVelocityTrend,
-  ragDistribution,
-  capacityByOrg,
-  portfolios,
-  teams,
-  products,
-  quarters,
-  currentUser,
-  notifications,
-  milestones,
-  releases,
-  incidents,
-  decisions,
-  businessOutcomes,
-  roadmapItems,
-  sprints,
-  defects,
-  capacities,
-  deliveryPeriodMetrics,
-  workItemAging,
-} from '@/data/mock';
+/**
+ * Thin service facades over the active DataProvider.
+ * Prefer `useDataProvider()` in React code; these remain for gradual migration
+ * and non-React callers. They must never import `@/data/mock`.
+ */
+import { getDataProvider } from '@/providers';
 import type { GlobalFilters } from '@/types';
-import {
-  filterCapacities,
-  filterDecisions,
-  filterDefects,
-  filterDeliveryPeriodMetrics,
-  filterDependencies,
-  filterIncidents,
-  filterKpis,
-  filterMilestones,
-  filterPrograms,
-  filterReleases,
-  filterRisks,
-  filterRoadmapItems,
-  filterSprints,
-  filterWorkItemAging,
-} from '@/utils/filters';
 
-const MOCK_LATENCY_MS = 250;
-
-function delay<T>(value: T, ms = MOCK_LATENCY_MS): Promise<T> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(value), ms);
-  });
-}
-
-/** Async mock services mirror future API clients so TanStack Query hooks stay stable. */
 export const programService = {
-  getPrograms: (filters?: Partial<GlobalFilters>) => delay(filterPrograms(programs, filters)),
-
-  getProgramById: (id: string) => delay(programs.find((program) => program.id === id) ?? null),
-
-  getPortfolioKpis: (filters?: Partial<GlobalFilters>) => delay(filterKpis(portfolioKpis, filters)),
+  getPrograms: (filters?: Partial<GlobalFilters>) => getDataProvider().getPrograms(filters),
+  getProgramById: (id: string) => getDataProvider().getProgramById(id),
+  getPortfolioKpis: (filters?: Partial<GlobalFilters>) =>
+    getDataProvider().getPortfolioKpis(filters),
 };
 
 export const milestoneService = {
-  getMilestones: (filters?: Partial<GlobalFilters>) => delay(filterMilestones(milestones, filters)),
+  getMilestones: (filters?: Partial<GlobalFilters>) => getDataProvider().getMilestones(filters),
 };
 
 export const riskService = {
-  getRisks: (filters?: Partial<GlobalFilters>) => delay(filterRisks(risks, filters)),
+  getRisks: (filters?: Partial<GlobalFilters>) => getDataProvider().getRisks(filters),
 };
 
 export const dependencyService = {
   getDependencies: (filters?: Partial<GlobalFilters>) =>
-    delay(filterDependencies(dependencies, filters)),
+    getDataProvider().getDependencies(filters),
 };
 
 export const releaseService = {
-  getReleases: (filters?: Partial<GlobalFilters>) => delay(filterReleases(releases, filters)),
+  getReleases: (filters?: Partial<GlobalFilters>) => getDataProvider().getReleases(filters),
 };
 
 export const incidentService = {
-  getIncidents: (filters?: Partial<GlobalFilters>) => delay(filterIncidents(incidents, filters)),
+  getIncidents: (filters?: Partial<GlobalFilters>) => getDataProvider().getIncidents(filters),
 };
 
 export const decisionService = {
-  getDecisions: (filters?: Partial<GlobalFilters>) => delay(filterDecisions(decisions, filters)),
+  getDecisions: (filters?: Partial<GlobalFilters>) => getDataProvider().getDecisions(filters),
 };
 
 export const roadmapService = {
   getRoadmapItems: (filters?: Partial<GlobalFilters>) =>
-    delay(filterRoadmapItems(roadmapItems, filters)),
+    getDataProvider().getRoadmapItems(filters),
 };
 
 export const sprintService = {
-  getSprints: (filters?: Partial<GlobalFilters>) => delay(filterSprints(sprints, filters)),
+  getSprints: (filters?: Partial<GlobalFilters>) => getDataProvider().getSprints(filters),
 };
 
 export const deliveryService = {
   getPeriodMetrics: (filters?: Partial<GlobalFilters>) =>
-    delay(filterDeliveryPeriodMetrics(deliveryPeriodMetrics, filters)),
+    getDataProvider().getDeliveryPeriodMetrics(filters),
   getWorkItemAging: (filters?: Partial<GlobalFilters>) =>
-    delay(filterWorkItemAging(workItemAging, filters)),
+    getDataProvider().getWorkItemAging(filters),
 };
 
 export const defectService = {
-  getDefects: (filters?: Partial<GlobalFilters>) => delay(filterDefects(defects, filters)),
+  getDefects: (filters?: Partial<GlobalFilters>) => getDataProvider().getDefects(filters),
+};
+
+export const issueService = {
+  getIssues: (filters?: Partial<GlobalFilters>) => getDataProvider().getIssues(filters),
 };
 
 export const capacityService = {
-  getCapacities: (filters?: Partial<GlobalFilters>) => delay(filterCapacities(capacities, filters)),
+  getCapacities: (filters?: Partial<GlobalFilters>) => getDataProvider().getCapacities(filters),
 };
 
 export const businessOutcomeService = {
   getBusinessOutcomes: (filters?: Partial<GlobalFilters>) =>
-    delay(
-      businessOutcomes.filter((outcome) =>
-        filterPrograms(programs, filters).some((program) => program.id === outcome.programId),
-      ),
-    ),
+    getDataProvider().getBusinessOutcomes(filters),
+};
+
+export const metricsService = {
+  getMetrics: (filters?: Partial<GlobalFilters>) => getDataProvider().getMetrics(filters),
 };
 
 export const orgService = {
-  getOrgUnits: () => delay(orgUnits),
-  getPeople: () => delay(people),
+  getOrgUnits: () => getDataProvider().getOrgUnits(),
+  getPeople: () => getDataProvider().getPeople(),
 };
 
 export const filterOptionsService = {
-  getPortfolios: () => delay(portfolios),
-  getTeams: () => delay(teams),
-  getProducts: () => delay(products),
-  getQuarters: () => delay(quarters),
-  getCurrentUser: () => delay(currentUser),
-  getNotifications: () => delay(notifications),
+  getPortfolios: () => getDataProvider().getPortfolios(),
+  getTeams: () => getDataProvider().getTeams(),
+  getProducts: () => getDataProvider().getProducts(),
+  getQuarters: () => getDataProvider().getQuarters(),
+  getCurrentUser: () => getDataProvider().getCurrentUser(),
+  getNotifications: () => getDataProvider().getNotifications(),
 };
 
 export const chartService = {
-  getDeliveryVelocity: () => delay(deliveryVelocityTrend),
-  getRagDistribution: () => delay(ragDistribution),
-  getCapacityByOrg: () => delay(capacityByOrg),
+  getDeliveryVelocity: async () => (await getDataProvider().getMetrics()).deliveryVelocity,
+  getRagDistribution: async () => (await getDataProvider().getMetrics()).ragDistribution,
+  getCapacityByOrg: async () => (await getDataProvider().getMetrics()).capacityByOrg,
 };

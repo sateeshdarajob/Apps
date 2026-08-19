@@ -1,19 +1,20 @@
 import { useQueries } from '@tanstack/react-query';
-import { programService, riskService } from '@/services';
+import { useDataProvider } from '@/providers';
 import { useGlobalFilters } from './useGlobalFilters';
 
 export function useRisksData() {
+  const provider = useDataProvider();
   const { filters, refreshKey } = useGlobalFilters();
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ['risks-programs', filters, refreshKey],
-        queryFn: () => programService.getPrograms(filters),
+        queryKey: ['risks-programs', provider.id, filters, refreshKey],
+        queryFn: () => provider.getPrograms(filters),
       },
       {
-        queryKey: ['risks-risks', filters, refreshKey],
-        queryFn: () => riskService.getRisks(filters),
+        queryKey: ['risks-risks', provider.id, filters, refreshKey],
+        queryFn: () => provider.getRisks(filters),
       },
     ],
   });
