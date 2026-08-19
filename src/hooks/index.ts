@@ -18,3 +18,4 @@ export {
 export { useOverviewData } from './useOverviewData';
 export { useDeliveryData } from './useDeliveryData';
 export { useRoadmapData } from './useRoadmapData';
+export { useDependenciesData } from './useDependenciesData';
