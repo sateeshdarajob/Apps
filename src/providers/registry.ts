@@ -14,14 +14,22 @@ export function resolveDataProviderKind(): DataProviderKind {
   return 'mock';
 }
 
-export function createDataProvider(kind: DataProviderKind = resolveDataProviderKind()): DataProvider {
+export function createDataProvider(
+  kind: DataProviderKind = resolveDataProviderKind(),
+): DataProvider {
   return providers[kind]();
 }
 
-/** Process-wide default used before React context mounts (and by thin service facades). */
-let activeProvider: DataProvider = createDataProvider('mock');
+/**
+ * Process-wide default for thin service facades.
+ * Lazily initialized so DataProviderHost does not create a duplicate instance on boot.
+ */
+let activeProvider: DataProvider | null = null;
 
 export function getDataProvider(): DataProvider {
+  if (!activeProvider) {
+    activeProvider = createDataProvider('mock');
+  }
   return activeProvider;
 }
 
