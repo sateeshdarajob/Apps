@@ -58,18 +58,27 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
             borderRadius: 1.5,
             justifyContent: showLabels ? 'flex-start' : 'center',
             px: showLabels ? 1.5 : 1,
-            color: 'inherit',
+            color: '#FFFFFF',
             '&.Mui-selected': {
-              bgcolor: 'rgba(255,255,255,0.16)',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
+              bgcolor: 'rgba(255,255,255,0.18)',
+              color: '#FFFFFF',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.24)' },
             },
-            '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+            '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+            // Theme typography variants hardcode dark slate — override for navy drawer.
+            '& .MuiListItemIcon-root': { color: '#FFFFFF' },
+            '& .MuiListItemText-primary': {
+              color: '#FFFFFF',
+              fontWeight: selected ? 600 : 500,
+              opacity: 1,
+            },
+            '& .MuiSvgIcon-root': { color: '#FFFFFF' },
           }}
         >
           <ListItemIcon
             sx={{
               minWidth: showLabels ? 36 : 0,
-              color: 'inherit',
+              color: '#FFFFFF',
               justifyContent: 'center',
             }}
           >
@@ -78,7 +87,12 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
           {showLabels && (
             <ListItemText
               primary={item.label}
-              primaryTypographyProps={{ variant: 'body2', fontWeight: selected ? 600 : 500 }}
+              primaryTypographyProps={{
+                fontSize: '0.8125rem',
+                lineHeight: 1.45,
+                fontWeight: selected ? 600 : 500,
+                sx: { color: '#FFFFFF' },
+              }}
             />
           )}
         </ListItemButton>
@@ -109,14 +123,25 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
         {showLabels && (
           <Box sx={{ minWidth: 0, pr: 1 }}>
             <Typography
-              variant="overline"
-              sx={{ opacity: 0.65, display: 'block', lineHeight: 1.2 }}
+              sx={{
+                display: 'block',
+                lineHeight: 1.2,
+                color: 'rgba(255,255,255,0.72)',
+                fontSize: '0.6875rem',
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
             >
               Engineering
             </Typography>
             <Typography
-              variant="subtitle1"
-              sx={{ lineHeight: 1.2, color: 'inherit', fontWeight: 600, fontSize: '0.9rem' }}
+              sx={{
+                lineHeight: 1.2,
+                color: '#FFFFFF',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+              }}
             >
               TPM Control Tower
             </Typography>
