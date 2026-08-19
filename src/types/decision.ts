@@ -19,4 +19,7 @@ export type Decision = {
   decisionDate?: string;
   outcome?: string;
   stakeholders: Person[];
+  /** True when this decision blocks a near-term milestone. */
+  blocksMilestone?: boolean;
+  milestoneId?: string;
 };

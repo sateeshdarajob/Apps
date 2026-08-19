@@ -1,13 +1,21 @@
 import { useMemo, type ReactNode } from 'react';
 import { Box, Button, Chip, LinearProgress, Stack, Typography } from '@mui/material';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { LoadingState, PageHeader, SectionCard, EmptyState } from '@/components/common';
 import { StatusBadge, RagDot } from '@/components/status';
 import { DataTable } from '@/components/tables';
-import { programService } from '@/services';
+import {
+  capacityService,
+  decisionService,
+  dependencyService,
+  incidentService,
+  programService,
+  releaseService,
+  riskService,
+} from '@/services';
 import type { Milestone, TableColumn } from '@/types';
-import { formatPercent, titleCase } from '@/utils';
+import { evaluateProgramHealth, formatPercent, titleCase } from '@/utils';
 
 export function ProgramDetailPage() {
   const { programId = '' } = useParams();
@@ -19,7 +27,55 @@ export function ProgramDetailPage() {
     enabled: Boolean(programId),
   });
 
+  const related = useQueries({
+    queries: [
+      {
+        queryKey: ['program-detail-deps', programId],
+        queryFn: () => dependencyService.getDependencies({ programId }),
+        enabled: Boolean(programId),
+      },
+      {
+        queryKey: ['program-detail-risks', programId],
+        queryFn: () => riskService.getRisks({ programId }),
+        enabled: Boolean(programId),
+      },
+      {
+        queryKey: ['program-detail-releases', programId],
+        queryFn: () => releaseService.getReleases({ programId }),
+        enabled: Boolean(programId),
+      },
+      {
+        queryKey: ['program-detail-incidents', programId],
+        queryFn: () => incidentService.getIncidents({ programId }),
+        enabled: Boolean(programId),
+      },
+      {
+        queryKey: ['program-detail-decisions', programId],
+        queryFn: () => decisionService.getDecisions({ programId }),
+        enabled: Boolean(programId),
+      },
+      {
+        queryKey: ['program-detail-capacity', programId],
+        queryFn: () => capacityService.getCapacities({ programId }),
+        enabled: Boolean(programId),
+      },
+    ],
+  });
+
   const milestoneRows = useMemo(() => program?.milestones ?? [], [program]);
+
+  const health = useMemo(() => {
+    if (!program) return null;
+    return evaluateProgramHealth({
+      program,
+      dependencies: related[0].data ?? [],
+      risks: related[1].data ?? [],
+      releases: related[2].data ?? [],
+      incidents: related[3].data ?? [],
+      decisions: related[4].data ?? [],
+      capacities: related[5].data ?? [],
+    });
+  }, [program, related]);
 
   if (isLoading) {
     return <LoadingState label="Loading program detail…" />;
@@ -58,11 +114,39 @@ export function ProgramDetailPage() {
           gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' },
         }}
       >
-        <DetailStat label="RAG" value={<StatusBadge status={program.rag} />} />
+        <DetailStat label="RAG" value={<StatusBadge status={health?.rag ?? program.rag} />} />
+        <DetailStat label="Health Score" value={String(health?.healthScore ?? '—')} />
         <DetailStat label="Progress" value={formatPercent(program.percentComplete)} />
         <DetailStat label="Owner" value={program.owner.name} />
-        <DetailStat label="Target date" value={program.targetDate} />
       </Box>
+
+      {health && (
+        <SectionCard
+          title="Program health rules"
+          description="Deterministic rules engine output — primary drivers and recommended action."
+        >
+          <Typography variant="subtitle2" gutterBottom>
+            Primary reason
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            {health.primaryReason}
+          </Typography>
+          <Typography variant="subtitle2" gutterBottom>
+            Primary drivers
+          </Typography>
+          <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+            {health.primaryDrivers.map((driver) => (
+              <Typography key={driver} variant="body2" color="text.secondary">
+                • {driver}
+              </Typography>
+            ))}
+          </Stack>
+          <Typography variant="subtitle2" gutterBottom>
+            Recommended action
+          </Typography>
+          <Typography variant="body2">{health.recommendedAction}</Typography>
+        </SectionCard>
+      )}
 
       <SectionCard
         title="Program summary"
@@ -80,7 +164,7 @@ export function ProgramDetailPage() {
           <SummaryRow label="Executive sponsor" value={program.executiveSponsor.name} />
           <SummaryRow label="Business owner" value={program.businessOwner.name} />
           <SummaryRow label="Priority" value={titleCase(program.priority)} />
-          <SummaryRow label="Start date" value={program.startDate} />
+          <SummaryRow label="Target date" value={program.targetDate} />
           <SummaryRow
             label="Budget"
             value={`${program.budget.currency} ${program.budget.amount.toLocaleString()}`}
@@ -137,22 +221,17 @@ export function ProgramDetailPage() {
                 </Box>
               ))
             )}
-
             <Typography variant="subtitle2" sx={{ pt: 1 }}>
               Risks ({program.risks.length})
             </Typography>
             {program.risks.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
-                No tracked risks.
+                No open risks.
               </Typography>
             ) : (
               program.risks.slice(0, 5).map((risk) => (
-                <Box key={risk.id} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <RagDot
-                    status={
-                      risk.severity === 'critical' || risk.severity === 'high' ? 'red' : 'amber'
-                    }
-                  />
+                <Box key={risk.id} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                  <Chip size="small" label={titleCase(risk.severity)} />
                   <Typography variant="body2">{risk.title}</Typography>
                 </Box>
               ))
@@ -169,9 +248,9 @@ function DetailStat({ label, value }: { label: string; value: ReactNode }) {
     <Box
       sx={{
         p: 2,
-        borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
+        borderRadius: 2,
         bgcolor: 'background.paper',
       }}
     >
@@ -179,11 +258,7 @@ function DetailStat({ label, value }: { label: string; value: ReactNode }) {
         {label}
       </Typography>
       <Box sx={{ mt: 0.75 }}>
-        {typeof value === 'string' || typeof value === 'number' ? (
-          <Typography variant="h4">{value}</Typography>
-        ) : (
-          value
-        )}
+        {typeof value === 'string' ? <Typography variant="h4">{value}</Typography> : value}
       </Box>
     </Box>
   );
@@ -195,7 +270,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
       <Typography variant="body2" color="text.secondary">
         {label}
       </Typography>
-      <Typography variant="body2" fontWeight={600}>
+      <Typography variant="body2" fontWeight={600} textAlign="right">
         {value}
       </Typography>
     </Box>
@@ -204,16 +279,16 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 const milestoneColumns: TableColumn<Milestone>[] = [
   { id: 'name', label: 'Milestone' },
-  { id: 'plannedDate', label: 'Target' },
-  {
-    id: 'percentComplete',
-    label: 'Progress',
-    align: 'right',
-    render: (row) => formatPercent(row.percentComplete),
-  },
+  { id: 'plannedDate', label: 'Planned' },
+  { id: 'owner', label: 'Owner', render: (row) => row.owner.name },
   {
     id: 'status',
     label: 'Status',
-    render: (row) => titleCase(row.status),
+    render: (row) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <RagDot status={row.rag} />
+        <Typography variant="body2">{titleCase(row.status)}</Typography>
+      </Box>
+    ),
   },
 ];

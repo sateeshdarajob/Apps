@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import {
+  capacityService,
   decisionService,
   dependencyService,
   incidentService,
@@ -7,6 +8,7 @@ import {
   programService,
   releaseService,
   riskService,
+  businessOutcomeService,
 } from '@/services';
 import { useGlobalFilters } from './useGlobalFilters';
 
@@ -44,6 +46,14 @@ export function useOverviewData() {
         queryKey: ['overview-decisions', filters, refreshKey],
         queryFn: () => decisionService.getDecisions(filters),
       },
+      {
+        queryKey: ['overview-capacities', filters, refreshKey],
+        queryFn: () => capacityService.getCapacities(filters),
+      },
+      {
+        queryKey: ['overview-outcomes', filters, refreshKey],
+        queryFn: () => businessOutcomeService.getBusinessOutcomes(filters),
+      },
     ],
   });
 
@@ -55,6 +65,8 @@ export function useOverviewData() {
     releasesQuery,
     incidentsQuery,
     decisionsQuery,
+    capacitiesQuery,
+    outcomesQuery,
   ] = results;
 
   return {
@@ -65,6 +77,8 @@ export function useOverviewData() {
     releases: releasesQuery.data ?? [],
     incidents: incidentsQuery.data ?? [],
     decisions: decisionsQuery.data ?? [],
+    capacities: capacitiesQuery.data ?? [],
+    outcomes: outcomesQuery.data ?? [],
     isLoading: results.some((result) => result.isLoading),
     isError: results.some((result) => result.isError),
   };

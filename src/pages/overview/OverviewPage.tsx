@@ -1,12 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Box, Button, Chip, LinearProgress, Link, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  LinearProgress,
+  Link,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ChartCard, MilestoneStackedBar, RagDonutChart } from '@/components/charts';
 import { LoadingState, PageHeader, SectionCard } from '@/components/common';
 import { KpiCardGrid } from '@/components/kpi';
 import { StatusBadge, RagDot } from '@/components/status';
 import { DataTable } from '@/components/tables';
-import { useGlobalFilters, useOverviewData } from '@/hooks';
+import { useDashboardRole, useGlobalFilters, useOverviewData } from '@/hooks';
 import type {
   Decision,
   Dependency,
@@ -18,9 +26,11 @@ import type {
   TableColumn,
 } from '@/types';
 import {
+  ACTION_CATEGORY_META,
+  buildExecutiveActions,
   buildExecutiveKpis,
   daysRemaining,
-  formatPercent,
+  evaluatePortfolioHealth,
   isCriticalBlocker,
   isHighCriticalRisk,
   isPendingDecision,
@@ -28,16 +38,21 @@ import {
   milestoneStatusSeries,
   ragDistribution,
   riskScore,
+  roleShowsSection,
   scheduleVarianceDays,
   titleCase,
 } from '@/utils';
-import type { ExecutiveKpi } from '@/utils';
+import type { ExecutiveAction, ExecutiveKpi, ProgramHealthAssessment } from '@/utils';
 
 type ProgramHealthRow = Program & {
   scheduleVariance: number;
   openRiskCount: number;
   blockerCount: number;
   dependencyCount: number;
+  healthScore: number;
+  calculatedRag: RagStatus;
+  primaryReason: string;
+  recommendedAction: string;
 };
 
 function formatVariance(days: number): string {
@@ -52,15 +67,52 @@ function programNameById(programs: Program[], id: string): string {
 
 export function OverviewPage() {
   const navigate = useNavigate();
+  const { role } = useDashboardRole();
   const { setFilters } = useGlobalFilters();
   const [ragFocus, setRagFocus] = useState<RagStatus | 'all'>('all');
-  const { programs, milestones, dependencies, risks, releases, incidents, decisions, isLoading } =
-    useOverviewData();
+  const {
+    programs,
+    milestones,
+    dependencies,
+    risks,
+    releases,
+    incidents,
+    decisions,
+    capacities,
+    outcomes,
+    isLoading,
+  } = useOverviewData();
+
+  const show = (section: Parameters<typeof roleShowsSection>[1]) =>
+    roleShowsSection(role, section);
+
+  const assessments = useMemo(
+    () =>
+      evaluatePortfolioHealth({
+        programs,
+        dependencies,
+        risks,
+        releases,
+        incidents,
+        decisions,
+        capacities,
+      }),
+    [programs, dependencies, risks, releases, incidents, decisions, capacities],
+  );
+
+  const assessmentById = useMemo(() => {
+    const map = new Map<string, ProgramHealthAssessment>();
+    for (const item of assessments) map.set(item.programId, item);
+    return map;
+  }, [assessments]);
 
   const focusedPrograms = useMemo(() => {
     if (ragFocus === 'all') return programs;
-    return programs.filter((program) => program.rag === ragFocus);
-  }, [programs, ragFocus]);
+    return programs.filter((program) => {
+      const assessment = assessmentById.get(program.id);
+      return (assessment?.rag ?? program.rag) === ragFocus;
+    });
+  }, [programs, ragFocus, assessmentById]);
 
   const kpis = useMemo(
     () =>
@@ -78,14 +130,36 @@ export function OverviewPage() {
 
   const healthRows = useMemo<ProgramHealthRow[]>(
     () =>
-      focusedPrograms.map((program) => ({
-        ...program,
-        scheduleVariance: scheduleVarianceDays(program),
-        openRiskCount: program.risks.filter(isHighCriticalRisk).length,
-        blockerCount: program.blockers.filter(isCriticalBlocker).length,
-        dependencyCount: program.dependencies.length,
-      })),
-    [focusedPrograms],
+      focusedPrograms.map((program) => {
+        const assessment = assessmentById.get(program.id);
+        return {
+          ...program,
+          scheduleVariance: scheduleVarianceDays(program),
+          openRiskCount: program.risks.filter(isHighCriticalRisk).length,
+          blockerCount: program.blockers.filter(isCriticalBlocker).length,
+          dependencyCount: program.dependencies.length,
+          healthScore: assessment?.healthScore ?? 100,
+          calculatedRag: assessment?.rag ?? program.rag,
+          primaryReason: assessment?.primaryReason ?? 'Within thresholds',
+          recommendedAction: assessment?.recommendedAction ?? 'Continue standard cadence',
+        };
+      }),
+    [focusedPrograms, assessmentById],
+  );
+
+  const executiveActions = useMemo(
+    () =>
+      buildExecutiveActions({
+        programs,
+        dependencies,
+        risks,
+        releases,
+        incidents,
+        decisions,
+        capacities,
+        assessments,
+      }),
+    [programs, dependencies, risks, releases, incidents, decisions, capacities, assessments],
   );
 
   const upcomingMilestones = useMemo(() => {
@@ -189,167 +263,308 @@ export function OverviewPage() {
         }
       />
 
-      {/* Section 1 — Executive KPIs */}
-      <KpiCardGrid metrics={kpis} columns={4} onMetricClick={handleKpiClick} />
-
-      {/* Sections 2 & 4 — Health + Milestone status */}
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 2,
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 1.2fr' },
-        }}
-      >
-        <ChartCard
-          id="program-health"
-          title="Program health"
-          subtitle={
-            ragFocus === 'all'
-              ? 'Click a segment to focus programs by RAG'
-              : `Focused on ${titleCase(ragFocus)} programs`
-          }
-          height={260}
+      {show('executiveActions') && (
+        <SectionCard
+          id="executive-action-center"
+          title="Executive Action Center"
+          description="Only items requiring stakeholder attention — compact and actionable."
         >
-          <RagDonutChart
-            data={ragDistribution(programs)}
-            activeStatus={ragFocus}
-            onSegmentClick={handleRagClick}
-          />
-        </ChartCard>
+          <Stack spacing={1}>
+            {executiveActions.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No escalations in the current filter scope.
+              </Typography>
+            ) : (
+              executiveActions.map((action) => (
+                <ActionRow key={action.id} action={action} onOpen={() => navigate(action.href)} />
+              ))
+            )}
+          </Stack>
+        </SectionCard>
+      )}
 
-        <ChartCard
-          id="milestone-status"
-          title="Milestone status"
-          subtitle="Completed, in progress, at risk, and delayed"
-          height={260}
-        >
-          <MilestoneStackedBar data={milestoneStatusSeries(milestones)} />
-        </ChartCard>
-      </Box>
+      {show('kpis') && (
+        <KpiCardGrid metrics={kpis} columns={4} onMetricClick={handleKpiClick} />
+      )}
 
-      {/* Section 3 — Portfolio program health table */}
-      <SectionCard
-        id="program-health-table"
-        title="Portfolio program health"
-        description="Sort and filter to inspect schedule, risk, and dependency pressure."
-      >
-        <DataTable
-          columns={programColumns}
-          rows={healthRows}
-          sortable
-          filterable
-          filterPlaceholder="Filter programs…"
-          emptyMessage="No programs match the current filters."
-          getSortValue={(row, columnId) => {
-            if (columnId === 'owner') return row.owner.name;
-            if (columnId === 'rag') return row.rag;
-            return (row as unknown as Record<string, unknown>)[columnId] as
-              string | number | boolean | null | undefined;
+      {(show('portfolioHealth') || show('milestones')) && (
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: { xs: '1fr', lg: '1fr 1.2fr' },
           }}
-          getFilterText={(row) =>
-            `${row.name} ${row.code} ${row.owner.name} ${row.rag} ${row.targetDate}`
-          }
-        />
-      </SectionCard>
+        >
+          {show('portfolioHealth') && (
+            <ChartCard
+              id="program-health"
+              title="Program health"
+              subtitle={
+                ragFocus === 'all'
+                  ? 'Rules-engine RAG — click a segment to focus'
+                  : `Focused on ${titleCase(ragFocus)} programs`
+              }
+              height={260}
+            >
+              <RagDonutChart
+                data={ragDistribution(
+                  assessments
+                    .map((item) => {
+                      const program = programs.find((entry) => entry.id === item.programId);
+                      return program ? { ...program, rag: item.rag } : null;
+                    })
+                    .filter((item): item is Program => Boolean(item)),
+                )}
+                activeStatus={ragFocus}
+                onSegmentClick={handleRagClick}
+              />
+            </ChartCard>
+          )}
 
-      {/* Section 5 — Upcoming milestones */}
-      <SectionCard
-        id="upcoming-milestones"
-        title="Upcoming milestones"
-        description="Next 10 milestones by target date."
-      >
-        <DataTable
-          columns={milestoneColumns}
-          rows={upcomingMilestones}
-          emptyMessage="No upcoming milestones for the current filters."
-        />
-      </SectionCard>
+          {show('milestones') && (
+            <ChartCard
+              id="milestone-status"
+              title="Milestone status"
+              subtitle="Completed, in progress, at risk, and delayed"
+              height={260}
+            >
+              <MilestoneStackedBar data={milestoneStatusSeries(milestones)} />
+            </ChartCard>
+          )}
+        </Box>
+      )}
 
-      {/* Sections 6 & 7 — Exceptions first */}
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 2,
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
-        }}
-      >
+      {show('programHealthTable') && (
         <SectionCard
-          id="critical-blockers"
-          title="Critical blockers"
-          description="Highest-impact blockers requiring escalation attention."
+          id="program-health-table"
+          title="Portfolio program health"
+          description="Health Score and RAG from the deterministic rules engine, with primary drivers and recommended actions."
+        >
+          <DataTable
+            columns={programColumns}
+            rows={healthRows}
+            sortable
+            filterable
+            filterPlaceholder="Filter programs…"
+            emptyMessage="No programs match the current filters."
+            onRowClick={(row) => navigate(`/programs/${row.id}`)}
+            getSortValue={(row, columnId) => {
+              if (columnId === 'owner') return row.owner.name;
+              if (columnId === 'rag') return row.calculatedRag;
+              return (row as unknown as Record<string, unknown>)[columnId] as
+                | string
+                | number
+                | boolean
+                | null
+                | undefined;
+            }}
+            getFilterText={(row) =>
+              `${row.name} ${row.code} ${row.owner.name} ${row.calculatedRag} ${row.primaryReason}`
+            }
+          />
+        </SectionCard>
+      )}
+
+      {show('businessOutcomes') && outcomes.length > 0 && (
+        <SectionCard
+          id="business-outcomes"
+          title="Business outcomes"
+          description="Customer and strategic outcome progress for the filtered portfolio."
+        >
+          <DataTable
+            columns={outcomeColumns}
+            rows={outcomes}
+            emptyMessage="No business outcomes in scope."
+          />
+        </SectionCard>
+      )}
+
+      {show('milestones') && (
+        <SectionCard
+          id="upcoming-milestones"
+          title="Upcoming milestones"
+          description="Next 10 milestones by target date."
+        >
+          <DataTable
+            columns={milestoneColumns}
+            rows={upcomingMilestones}
+            emptyMessage="No upcoming milestones for the current filters."
+          />
+        </SectionCard>
+      )}
+
+      {(show('blockers') || show('risks') || show('dependencies')) && (
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
+          }}
+        >
+          {(show('blockers') || show('dependencies')) && (
+            <SectionCard
+              id="critical-blockers"
+              title="Critical blockers"
+              description="Highest-impact blockers requiring escalation attention."
+              action={
+                <Link component={RouterLink} to="/dependencies" variant="body2" underline="hover">
+                  View all
+                </Link>
+              }
+            >
+              <DataTable
+                columns={blockerColumns}
+                rows={criticalBlockers}
+                emptyMessage="No critical blockers — healthy signal."
+              />
+            </SectionCard>
+          )}
+
+          {show('risks') && (
+            <SectionCard
+              id="top-risks"
+              title="Top risks"
+              description="Top 5 open high/critical risks by risk score."
+              action={
+                <Link component={RouterLink} to="/risks" variant="body2" underline="hover">
+                  View all
+                </Link>
+              }
+            >
+              <DataTable
+                columns={riskColumns}
+                rows={topRisks}
+                emptyMessage="No high or critical open risks."
+              />
+            </SectionCard>
+          )}
+        </Box>
+      )}
+
+      {(show('releases') || show('decisions')) && (
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
+          }}
+        >
+          {show('releases') && (
+            <SectionCard
+              id="upcoming-releases"
+              title="Upcoming releases"
+              description="Next release windows and readiness."
+              action={
+                <Link component={RouterLink} to="/releases" variant="body2" underline="hover">
+                  View all
+                </Link>
+              }
+            >
+              <DataTable
+                columns={releaseColumns}
+                rows={upcomingReleases}
+                emptyMessage="No upcoming releases in scope."
+              />
+            </SectionCard>
+          )}
+
+          {show('decisions') && (
+            <SectionCard
+              id="decisions-needed"
+              title="Decisions needed"
+              description="Stakeholder actions still pending."
+              action={
+                <Link component={RouterLink} to="/decisions" variant="body2" underline="hover">
+                  View all
+                </Link>
+              }
+            >
+              <DataTable
+                columns={decisionColumns}
+                rows={pendingDecisions}
+                emptyMessage="No pending decisions."
+              />
+            </SectionCard>
+          )}
+        </Box>
+      )}
+
+      {show('resources') && (
+        <SectionCard
+          title="Resources snapshot"
+          description="Capacity signals for the current filter scope."
           action={
-            <Link component={RouterLink} to="/dependencies" variant="body2" underline="hover">
-              View all
+            <Link component={RouterLink} to="/resources" variant="body2" underline="hover">
+              Open capacity
             </Link>
           }
         >
-          <DataTable
-            columns={blockerColumns}
-            rows={criticalBlockers}
-            emptyMessage="No critical blockers — healthy signal."
-          />
+          <Typography variant="body2" color="text.secondary">
+            {capacities.length} capacity rows in scope. Open Resources for utilization and gap
+            analysis.
+          </Typography>
         </SectionCard>
+      )}
 
+      {show('incidents') && (
         <SectionCard
-          id="top-risks"
-          title="Top risks"
-          description="Top 5 open high/critical risks by risk score."
+          title="Incidents"
+          description="P0/P1 governance signals."
           action={
-            <Link component={RouterLink} to="/risks" variant="body2" underline="hover">
-              View all
+            <Link component={RouterLink} to="/incidents" variant="body2" underline="hover">
+              Open incidents
             </Link>
           }
         >
-          <DataTable
-            columns={riskColumns}
-            rows={topRisks}
-            emptyMessage="No high or critical open risks."
-          />
+          <Typography variant="body2" color="text.secondary">
+            {incidents.filter((item) => item.severity === 'sev1' || item.severity === 'sev2').length}{' '}
+            P0/P1 incidents in scope.
+          </Typography>
         </SectionCard>
+      )}
+    </Box>
+  );
+}
+
+function ActionRow({
+  action,
+  onOpen,
+}: {
+  action: ExecutiveAction;
+  onOpen: () => void;
+}) {
+  const meta = ACTION_CATEGORY_META[action.category];
+  return (
+    <Box
+      onClick={onOpen}
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '140px 1fr auto' },
+        gap: 1,
+        alignItems: 'start',
+        p: 1.25,
+        borderRadius: 1.5,
+        border: '1px solid',
+        borderColor: 'divider',
+        cursor: 'pointer',
+        '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+      }}
+    >
+      <Typography variant="caption" fontWeight={700} sx={{ color: meta.color }}>
+        {meta.emoji} {meta.label}
+      </Typography>
+      <Box>
+        <Typography variant="body2" fontWeight={700}>
+          {action.title}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {action.program} · {action.reason}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Owner: {action.owner} · Due: {action.dueDate} · {action.recommendedAction}
+        </Typography>
       </Box>
-
-      {/* Sections 8 & 9 */}
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 2,
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
-        }}
-      >
-        <SectionCard
-          id="upcoming-releases"
-          title="Upcoming releases"
-          description="Next release windows and readiness."
-          action={
-            <Link component={RouterLink} to="/releases" variant="body2" underline="hover">
-              View all
-            </Link>
-          }
-        >
-          <DataTable
-            columns={releaseColumns}
-            rows={upcomingReleases}
-            emptyMessage="No upcoming releases in scope."
-          />
-        </SectionCard>
-
-        <SectionCard
-          id="decisions-needed"
-          title="Decisions needed"
-          description="Stakeholder actions still pending."
-          action={
-            <Link component={RouterLink} to="/decisions" variant="body2" underline="hover">
-              View all
-            </Link>
-          }
-        >
-          <DataTable
-            columns={decisionColumns}
-            rows={pendingDecisions}
-            emptyMessage="No pending decisions."
-          />
-        </SectionCard>
-      </Box>
+      <Chip size="small" label={titleCase(action.severity)} />
     </Box>
   );
 }
@@ -372,35 +587,42 @@ const programColumns: TableColumn<ProgramHealthRow>[] = [
     ),
   },
   {
-    id: 'owner',
-    label: 'Owner',
-    render: (row) => row.owner.name,
-  },
-  {
-    id: 'rag',
-    label: 'RAG',
-    render: (row) => <StatusBadge status={row.rag} />,
-  },
-  {
-    id: 'percentComplete',
-    label: 'Progress',
+    id: 'healthScore',
+    label: 'Health Score',
     align: 'right',
     render: (row) => (
-      <Box sx={{ minWidth: 96 }}>
-        <Typography variant="body2" align="right">
-          {formatPercent(row.percentComplete)}
-        </Typography>
-        <LinearProgress
-          variant="determinate"
-          value={row.percentComplete}
-          sx={{ mt: 0.5, height: 6, borderRadius: 999 }}
-        />
-      </Box>
+      <Typography variant="body2" fontWeight={700}>
+        {row.healthScore}
+      </Typography>
     ),
   },
   {
-    id: 'targetDate',
-    label: 'Target Date',
+    id: 'calculatedRag',
+    label: 'RAG',
+    render: (row) => <StatusBadge status={row.calculatedRag} />,
+  },
+  {
+    id: 'primaryReason',
+    label: 'Primary reason',
+    render: (row) => (
+      <Typography variant="body2" sx={{ maxWidth: 260 }}>
+        {row.primaryReason}
+      </Typography>
+    ),
+  },
+  {
+    id: 'recommendedAction',
+    label: 'Recommended action',
+    render: (row) => (
+      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 260 }}>
+        {row.recommendedAction}
+      </Typography>
+    ),
+  },
+  {
+    id: 'owner',
+    label: 'Owner',
+    render: (row) => row.owner.name,
   },
   {
     id: 'scheduleVariance',
@@ -430,11 +652,6 @@ const programColumns: TableColumn<ProgramHealthRow>[] = [
   {
     id: 'blockerCount',
     label: 'Blockers',
-    align: 'right',
-  },
-  {
-    id: 'dependencyCount',
-    label: 'Dependencies',
     align: 'right',
   },
 ];
@@ -583,5 +800,35 @@ const decisionColumns: TableColumn<Decision>[] = [
       ) : (
         <Chip size="small" label="No" variant="outlined" />
       ),
+  },
+];
+
+const outcomeColumns: TableColumn<{
+  id: string;
+  title: string;
+  metricName: string;
+  currentValue: number;
+  targetValue: number;
+  unit: string;
+  status: string;
+}>[] = [
+  { id: 'title', label: 'Outcome' },
+  { id: 'metricName', label: 'Metric' },
+  {
+    id: 'currentValue',
+    label: 'Current',
+    align: 'right',
+    render: (row) => `${row.currentValue}${row.unit}`,
+  },
+  {
+    id: 'targetValue',
+    label: 'Target',
+    align: 'right',
+    render: (row) => `${row.targetValue}${row.unit}`,
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    render: (row) => titleCase(row.status),
   },
 ];

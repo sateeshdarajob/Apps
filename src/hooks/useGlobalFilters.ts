@@ -1,15 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { AutoRefreshInterval, GlobalFilters } from '@/types';
 
-export const DEFAULT_FILTERS: GlobalFilters = {
-  portfolioId: 'all',
-  programId: 'all',
-  quarter: '2026-Q1',
-  teamId: 'all',
-  productId: 'all',
-  ragStatus: 'all',
-  dateRange: '90d',
-};
+export { DEFAULT_FILTERS, CLEARED_FILTERS } from '@/utils/filterState';
 
 export const AUTO_REFRESH_OPTIONS: {
   value: AutoRefreshInterval;
@@ -26,7 +18,11 @@ export const AUTO_REFRESH_OPTIONS: {
 export type FilterContextValue = {
   filters: GlobalFilters;
   setFilters: (next: Partial<GlobalFilters>) => void;
+  /** Restore DEFAULT_FILTERS (quarter + date range defaults). */
   resetFilters: () => void;
+  /** Clear all dimensions to open lens. */
+  clearFilters: () => void;
+  activeFilterCount: number;
   autoRefresh: AutoRefreshInterval;
   setAutoRefresh: (interval: AutoRefreshInterval) => void;
   lastRefreshedAt: Date;
