@@ -20,11 +20,14 @@ type DataProviderHostProps = {
  * UI/hooks must use `useDataProvider()` — never import mock JSON.
  */
 export function DataProviderHost({ children, kind, provider }: DataProviderHostProps) {
-  const value = useMemo(() => {
-    const next = provider ?? createDataProvider(kind ?? resolveDataProviderKind());
-    setDataProvider(next);
-    return next;
-  }, [kind, provider]);
+  const value = useMemo(
+    () => provider ?? createDataProvider(kind ?? resolveDataProviderKind()),
+    [kind, provider],
+  );
+
+  // Mirror into the module registry during render (idempotent) so service facades
+  // see the same instance as context before children run — avoids a layout-effect race.
+  setDataProvider(value);
 
   return <DataProviderContext.Provider value={value}>{children}</DataProviderContext.Provider>;
 }

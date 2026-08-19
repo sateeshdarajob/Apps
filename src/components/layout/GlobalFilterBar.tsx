@@ -284,10 +284,14 @@ function FilterSelect({
   allLabel: string;
   options: { value: string; label: string }[];
 }) {
+  // While async filter options load, avoid MUI out-of-range Select warnings.
+  const valueInOptions =
+    value === 'all' || options.some((item) => item.value === value) ? value : 'all';
+
   return (
     <FormControl size="small" fullWidth>
       <InputLabel id={id}>{label}</InputLabel>
-      <Select labelId={id} label={label} value={value} onChange={onChange}>
+      <Select labelId={id} label={label} value={valueInOptions} onChange={onChange}>
         <MenuItem value="all">{allLabel}</MenuItem>
         {options.map((item) => (
           <MenuItem key={item.value} value={item.value}>
