@@ -290,3 +290,102 @@ export function AgingBarChart({ data, onBarClick }: AgingBarChartProps) {
     </ResponsiveContainer>
   );
 }
+
+type DualSeriesBarChartProps = {
+  data: { label: string; capacity: number; demand: number }[];
+};
+
+export function DualSeriesBarChart({ data }: DualSeriesBarChartProps) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#D8E1E8" />
+        <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="#8A9BA8" />
+        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8A9BA8" width={36} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="capacity" name="Capacity" fill="#0B3A53" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="demand" name="Demand" fill="#C47A11" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+type HeatmapCell = {
+  probability: string;
+  impact: string;
+  count: number;
+};
+
+type ProbabilityImpactHeatmapProps = {
+  probabilities: string[];
+  impacts: string[];
+  cells: HeatmapCell[];
+};
+
+function heatmapColor(count: number): string {
+  if (count <= 0) return '#F4F7F9';
+  if (count === 1) return '#F6E2B8';
+  if (count === 2) return '#E8A23A';
+  return '#C62828';
+}
+
+export function ProbabilityImpactHeatmap({
+  probabilities,
+  impacts,
+  cells,
+}: ProbabilityImpactHeatmapProps) {
+  const lookup = new Map(
+    cells.map((cell) => [`${cell.probability}:${cell.impact}`, cell.count]),
+  );
+
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: `88px repeat(${impacts.length}, 1fr)`,
+        gap: 0.75,
+        height: '100%',
+        alignContent: 'center',
+      }}
+    >
+      <Box />
+      {impacts.map((impact) => (
+        <Typography key={impact} variant="caption" textAlign="center" color="text.secondary">
+          {impact}
+        </Typography>
+      ))}
+      {probabilities.map((probability) => (
+        <Box key={probability} sx={{ display: 'contents' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center' }}>
+            {probability}
+          </Typography>
+          {impacts.map((impact) => {
+            const count = lookup.get(`${probability}:${impact}`) ?? 0;
+            return (
+              <Box
+                key={`${probability}-${impact}`}
+                sx={{
+                  bgcolor: heatmapColor(count),
+                  borderRadius: 1,
+                  minHeight: 36,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  color: count >= 2 ? '#fff' : 'text.primary',
+                  fontWeight: 600,
+                  fontSize: 13,
+                }}
+                title={`${probability} × ${impact}: ${count}`}
+              >
+                {count}
+              </Box>
+            );
+          })}
+        </Box>
+      ))}
+    </Box>
+  );
+}

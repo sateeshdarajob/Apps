@@ -1,5 +1,9 @@
 import type { Capacity } from '@/types';
 
+/**
+ * Raw capacity snapshots. Utilization, available capacity, and gap are
+ * recalculated dynamically in `utils/resources` so KPI/charts stay consistent.
+ */
 export const capacities: Capacity[] = [
   {
     id: 'cap-001',
@@ -65,6 +69,40 @@ export const capacities: Capacity[] = [
     availableCapacity: 7,
     utilization: 0.56,
     demand: 10,
+    capacityGap: 6,
+    unit: 'personWeeks',
+    asOfDate: '2026-03-18',
+  },
+  {
+    id: 'cap-005',
+    teamId: 'team-identity',
+    team: 'Identity Platform',
+    quarter: '2026-Q1',
+    portfolioId: 'pf-platform',
+    programId: 'prg-004',
+    productId: 'prod-identity',
+    totalCapacity: 8,
+    allocatedCapacity: 8,
+    availableCapacity: 0,
+    utilization: 1.0,
+    demand: 11,
+    capacityGap: -3,
+    unit: 'personWeeks',
+    asOfDate: '2026-03-18',
+  },
+  {
+    id: 'cap-006',
+    teamId: 'team-checkout',
+    team: 'Checkout Experience',
+    quarter: '2026-Q2',
+    portfolioId: 'pf-growth',
+    programId: 'prg-002',
+    productId: 'prod-checkout',
+    totalCapacity: 24,
+    allocatedCapacity: 16,
+    availableCapacity: 8,
+    utilization: 0.67,
+    demand: 18,
     capacityGap: 6,
     unit: 'personWeeks',
     asOfDate: '2026-03-18',

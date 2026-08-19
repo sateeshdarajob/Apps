@@ -5,24 +5,30 @@ import {
   Badge,
   Box,
   Divider,
+  FormControl,
   IconButton,
+  InputLabel,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
+  Select,
   Toolbar,
   Tooltip,
   Typography,
   useMediaQuery,
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import { useTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import { useLocation } from 'react-router-dom';
-import { useCurrentUser, useNotifications } from '@/hooks';
+import { useCurrentUser, useDashboardRole, useNotifications } from '@/hooks';
 import { PROFILE_AVATAR_INITIALS, PROFILE_DISPLAY_NAME, formatRelativeTime } from '@/utils';
+import { DASHBOARD_ROLE_OPTIONS } from '@/types';
+import type { DashboardRole } from '@/types';
 import { APP_HEADER_HEIGHT } from './constants';
 import { AppBreadcrumbs } from './AppBreadcrumbs';
 
@@ -38,11 +44,15 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
   const location = useLocation();
   const { data: user } = useCurrentUser();
   const { data: notifications = [] } = useNotifications();
+  const { role, setRole } = useDashboardRole();
   const unreadCount = notifications.filter((item) => !item.read).length;
 
   const displayName = PROFILE_DISPLAY_NAME;
   const displayInitials = user?.avatarInitials || PROFILE_AVATAR_INITIALS;
-  const displayRole = user?.role ?? 'Technical Program Manager';
+  const displayRole =
+    DASHBOARD_ROLE_OPTIONS.find((item) => item.value === role)?.label ??
+    user?.role ??
+    'Technical Program Manager';
   const displayEmail = user?.email ?? 'sateesh.kumar.dara@example.com';
 
   const [profileAnchor, setProfileAnchor] = useState<null | HTMLElement>(null);
@@ -83,7 +93,25 @@ export function AppHeader({ title, drawerOffset, onMobileMenuOpen }: AppHeaderPr
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FormControl size="small" sx={{ minWidth: { xs: 120, md: 170 } }}>
+            <InputLabel id="dashboard-role">Role view</InputLabel>
+            <Select
+              labelId="dashboard-role"
+              label="Role view"
+              value={role}
+              onChange={(event: SelectChangeEvent<string>) =>
+                setRole(event.target.value as DashboardRole)
+              }
+            >
+              {DASHBOARD_ROLE_OPTIONS.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <Tooltip title="Notifications">
             <IconButton
               aria-label="Notifications"

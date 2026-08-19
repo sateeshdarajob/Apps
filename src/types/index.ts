@@ -47,6 +47,8 @@ export type { Capacity } from './capacity';
 export type { Program } from './program';
 export type { GlobalFilters } from './filters';
 export type { NavigationItem, ChartSeriesPoint, NamedSeries, TableColumn } from './ui';
+export type { DashboardRole, OverviewSectionId } from './role';
+export { DASHBOARD_ROLE_OPTIONS } from './role';
 
 /** @deprecated Use Program.rag / Program.status instead. */
 export type ProgramHealth = import('./common').RagStatus;

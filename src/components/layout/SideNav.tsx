@@ -16,6 +16,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useDashboardRole } from '@/hooks';
+import { navigationForRole } from '@/utils';
 import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from './constants';
 import { NAVIGATION_ITEMS } from './navigationConfig';
 import { getNavIcon } from './navIcons';
@@ -33,9 +35,11 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const desktopWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
   const showLabels = isMobile || !collapsed;
+  const { role } = useDashboardRole();
 
-  const primaryItems = NAVIGATION_ITEMS.filter((item) => item.section !== 'secondary');
-  const secondaryItems = NAVIGATION_ITEMS.filter((item) => item.section === 'secondary');
+  const visibleItems = navigationForRole(NAVIGATION_ITEMS, role);
+  const primaryItems = visibleItems.filter((item) => item.section !== 'secondary');
+  const secondaryItems = visibleItems.filter((item) => item.section === 'secondary');
 
   const renderItems = (items: typeof NAVIGATION_ITEMS) =>
     items.map((item) => {
@@ -80,12 +84,12 @@ export function SideNav({ collapsed, mobileOpen, onToggleCollapse, onMobileClose
         </ListItemButton>
       );
 
-      return !showLabels ? (
+      return showLabels ? (
+        button
+      ) : (
         <Tooltip key={item.id} title={item.label} placement="right">
           {button}
         </Tooltip>
-      ) : (
-        button
       );
     });
 

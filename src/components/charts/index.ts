@@ -8,4 +8,6 @@ export {
   ScopeChangeBar,
   ClickableLineChart,
   AgingBarChart,
+  DualSeriesBarChart,
+  ProbabilityImpactHeatmap,
 } from './ChartPrimitives';

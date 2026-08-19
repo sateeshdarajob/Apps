@@ -76,3 +76,78 @@ export {
   buildDependencyTableRows,
 } from './dependencies';
 export type { DependencyTableRow } from './dependencies';
+export {
+  isCriticalRisk,
+  isHighRisk,
+  isOverdueRisk,
+  hasNoMitigation,
+  requiresExecutiveAttention,
+  buildRiskKpis,
+  buildProbabilityImpactHeatmap,
+  aggregateRiskTrend,
+  aggregateRisksBySeverity,
+  aggregateRiskAging,
+  buildRiskTableRows,
+  formatEscalation,
+} from './risks';
+export type { RiskTableRow } from './risks';
+export {
+  computeOverallReadiness,
+  isReleaseAtRisk,
+  buildReleaseKpis,
+  aggregateReleaseReadiness,
+  aggregateReleaseTrend,
+  buildReleaseCalendar,
+  buildReleaseTableRows,
+  readinessChecklist,
+  READINESS_DIMENSIONS,
+} from './releases';
+export type { ReleaseTableRow } from './releases';
+export {
+  toPriorityLabel,
+  isOpenIncident,
+  isP0,
+  isP1,
+  exceedsSla,
+  buildIncidentKpis,
+  aggregateIncidentTrend,
+  aggregateMttrTrend,
+  aggregateIncidentsBySeverity,
+  aggregateIncidentsByService,
+  buildPostmortemRows,
+} from './incidents';
+export type { PostmortemRow } from './incidents';
+export {
+  deriveCapacityMetrics,
+  buildCapacityKpis,
+  aggregateCapacityVsDemand,
+  aggregateUtilizationByTeam,
+  aggregateAllocationByInitiative,
+  aggregateCapacityGap,
+  buildCapacityTableRows,
+} from './resources';
+export type { CapacityTableRow, CapacityMetrics } from './resources';
+export {
+  isOverdueDecision,
+  isHighImpactDecision,
+  requiresExecutiveAction,
+  isBlockingDecision,
+  buildDecisionKpis,
+  aggregateDecisionAging,
+  buildDecisionTableRows,
+} from './decisions';
+export type { DecisionTableRow } from './decisions';
+export { evaluateProgramHealth, evaluatePortfolioHealth } from './healthRules';
+export type { ProgramHealthAssessment, HealthFinding } from './healthRules';
+export { buildExecutiveActions, ACTION_CATEGORY_META } from './executiveActions';
+export type { ExecutiveAction, ActionCategory } from './executiveActions';
+export { navigationForRole, roleShowsSection, overviewSectionsForRole } from './roles';
+export {
+  DEFAULT_FILTERS,
+  CLEARED_FILTERS,
+  countActiveFilters,
+  loadStoredFilters,
+  persistFilters,
+} from './filterState';
+export { describeActiveFilters } from './filterMeta';
+export { DASHBOARD_ROLE_OPTIONS } from '@/types/role';

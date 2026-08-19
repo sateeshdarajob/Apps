@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import type { ReactNode } from 'react';
 import { appTheme } from '@/theme';
 import { FilterProvider } from './FilterProvider';
+import { RoleProvider } from './RoleProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,9 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={appTheme}>
         <CssBaseline />
-        <FilterProvider>{children}</FilterProvider>
+        <RoleProvider>
+          <FilterProvider>{children}</FilterProvider>
+        </RoleProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
