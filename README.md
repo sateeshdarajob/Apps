@@ -1,6 +1,7 @@
 # TPM Control Tower
 
 Enterprise Technical Program Management dashboard for TPMs, Engineering Managers, Product Managers, and executive stakeholders.
+Click the link to view: https://tpm-controltower.netlify.app/
 
 ![TPM Control Tower — latest UI](docs/screenshots/latest-ui.png)
 
